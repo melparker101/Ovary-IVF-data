@@ -11,3 +11,6 @@ The adapters were removed using trimmomatic. No other trimming was necessary (ht
 Step 2 was repeated on the trimmed files to ensure the quality of these is sufficient.
 ### 5. Use STAR to create an index file
 An annotation file was downloaded from ensemble http://www.ensembl.org/info/data/ftp/index.html/
+```
+wget https://ftp.ensembl.org/pub/release-108/gtf/homo_sapiens/Homo_sapiens.GRCh38.108.gtf.gz
+```
