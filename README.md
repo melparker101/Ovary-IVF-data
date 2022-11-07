@@ -9,3 +9,5 @@ QC was performed on the data using FastQC, then MultiQC was run to visualise the
 The adapters were removed using trimmomatic. No other trimming was necessary (https://sequencing.qcfail.com/articles/positional-sequence-bias-in-random-primed-libraries/).
 ### 4. Perform QC on trimmed files
 Step 2 was repeated on the trimmed files to ensure the quality of these is sufficient.
+### 5. Use STAR to create an index file
+An annotation file was downloaded from ensemble http://www.ensembl.org/info/data/ftp/index.html/
