@@ -45,7 +45,7 @@ module load STAR/2.7.9a-GCC-11.2.0
 REF_GENOME=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
 OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/ref
 
-STAR --runThreadN NumberOfThreads 6 \
+STAR --runThreadN 6 \
 --runMode genomeGenerate \
 --genomeDir $OUT \
 --genomeFastaFiles $REF_GENOME/GRCh38.primary_assembly.genome.fa.gz \
