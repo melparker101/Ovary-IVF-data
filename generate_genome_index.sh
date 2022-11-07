@@ -48,8 +48,8 @@ OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/ref
 STAR --runThreadN 6 \
 --runMode genomeGenerate \
 --genomeDir $OUT \
---genomeFastaFiles $REF_GENOME/GRCh38.primary_assembly.genome.fa.gz \
---sjdbGTFfile $REF_GENOME/gencode.v42.primary_assembly.annotation.gtf.gz \
+--genomeFastaFiles $REF_GENOME/GRCh38.primary_assembly.genome.fa \
+--sjdbGTFfile $REF_GENOME/gencode.v42.primary_assembly.annotation.gtf \
 --sjdbOverhang 149  # read-length - 1
 
 # End of job script
