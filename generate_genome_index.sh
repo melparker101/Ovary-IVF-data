@@ -50,6 +50,6 @@ STAR --runThreadN NumberOfThreads 6 \
 --genomeDir $OUT \
 --genomeFastaFiles $OUT/GRCh38.primary_assembly.genome.fa.gz \
 --sjdbGTFfile $OUT/gencode.v42.primary_assembly.annotation.gtf.gz \
---sjdbOverhang 149 # read-length - 1
+--sjdbOverhang 149  # read-length - 1
 
 # End of job script
