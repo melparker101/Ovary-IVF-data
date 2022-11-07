@@ -8,7 +8,7 @@
 SECONDS=0
 
 # Specify a job name
-#$ -N qc
+#$ -N qc_trim_adap
 
 # Project name and target queue choose short or long
 #$ -P lindgren.prjc
