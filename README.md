@@ -14,5 +14,6 @@ The STAR manual recommends using the genome PRI assembly sequencing files. The c
 ```
 wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/GRCh38.primary_assembly.genome.fa.gz
 wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/gencode.v42.primary_assembly.annotation.gtf.gz
+gzip -d GRCh38.primary_assembly.genome.fa.gz gencode.v42.primary_assembly.annotation.gtf.gz
 ```
 
