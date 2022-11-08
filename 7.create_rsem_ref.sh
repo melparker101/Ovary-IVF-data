@@ -53,7 +53,7 @@ IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_reads
 OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem_ref
 
 if [ ! -d $OUT]; then
-  mkdir rsem_ref
+  mkdir -p $OUT
 fi
 
 
