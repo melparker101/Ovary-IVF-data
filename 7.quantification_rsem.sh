@@ -30,7 +30,7 @@
 #   node_mpi
 #   ramdisk
 #$ -pe shmem 4
-#$ -t 2-36
+#$ -t 1-15
 
 # Some useful data about the job to help with debugging
 echo "------------------------------------------------"
@@ -55,7 +55,7 @@ if [ ! -d "$OUT" ]; then
   mkdir -p $OUT
 fi
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' /index.txt)
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
 
 
 rsem-calculate-expression --bam --paired-end -p 4 $IN/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $REF $OUT/rsem_"$INPUT_FILE"
