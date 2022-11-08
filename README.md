@@ -22,5 +22,5 @@ An index file was created.
 ### 6. Map reads to the genome
 Star was used for read mapping. Alternatives include HISAT2, Bowtie, and TopHat2. 
 ### 7. Perform gene and isoform quantification
-Gene and isoform expression of rna-seq was estimated using RSEM. Alternatives include eXpress, Salmon, and featurecount.
+Gene and isoform expression of rna-seq was estimated using RSEM. Alternatives include eXpress and Salmon.
 
