@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# ----------------------------------------------------------
+# Script to trim adapters from in-house IVF ovary RNA-seq data 
+# melodyjparker14@gmail.com - Nov 22
+# ----------------------------------------------------------
+
 SECONDS=0
 
 # Specify a job name
