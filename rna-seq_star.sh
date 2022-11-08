@@ -64,6 +64,6 @@ STAR --runThreadN 6 \
 --outFilterType BySJout --outFilterMultimapNmax 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.1 \
 --alignSJoverhangMin 8 --alignSJDBoverhangMin 3 --alignIntronMin 20 \
 --chimSegmentMin 20 --outSAMattributes All \
---quantMode TranscriptomeSAM 
+--quantMode TranscriptomeSAM  # output alignments translated into transcript coordinates
 
 # End of job script
