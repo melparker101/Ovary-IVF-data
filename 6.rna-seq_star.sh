@@ -46,17 +46,18 @@ echo "------------------------------------------------"
 # module use -a /apps/eb/dev/{skylake,ivybridge}/modules/all
 module load STAR/2.7.9a-GCC-11.2.0
 
+fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
 STAR_INDEX=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star_index
 REF=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
 IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_reads
 OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star
 
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/../index.txt)
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' /index.txt)
 
 
 STAR --runThreadN 6 \
---readFilesIn $IN/IVF00"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz $IN/IVF00"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
+--readFilesIn $IN/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz $IN/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 --readFilesCommand zcat \
 --outFileNamePrefix $OUT/$INPUT_FILE \
 --genomeDir $STAR_INDEX \
