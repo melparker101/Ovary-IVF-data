@@ -57,7 +57,7 @@ if [ ! -d $OUT]; then
 fi
 
 
-rsem-prepare-reference --gtf $REF_GENOME/Mus_musculus.GRCm38.82.chr.gtf \
+rsem-prepare-reference --gtf $REF_GENOME/gencode.v42.primary_assembly.annotation.gtf \
    				     $REF_GENOME/GRCh38.primary_assembly.genome.fa \
                $OUT                    
 
