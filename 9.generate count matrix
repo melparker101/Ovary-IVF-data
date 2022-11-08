@@ -1,0 +1,2 @@
+module load RSEM/1.3.2-foss-2018b
+rsem-generate-data-matrix *.genes.results >> full.count.genes.matrix.txt
