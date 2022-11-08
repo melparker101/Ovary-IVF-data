@@ -2,7 +2,7 @@
 
 # ----------------------------------------------------------
 # Based on Saskia Reibe's code
-# Script to run quality check on in-house IVF ovary data
+# Script to map in-house IVF ovary RNA-seq data to genome
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
