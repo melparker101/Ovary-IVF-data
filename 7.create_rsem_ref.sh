@@ -58,7 +58,7 @@ fi
 
 
 rsem-prepare-reference --gtf $REF_GENOME/gencode.v42.primary_assembly.annotation.gtf \
-   				     $REF_GENOME/GRCh38.primary_assembly.genome.fa $OUT/rsem_ref                    
+   				     $REF_GENOME/GRCh38.primary_assembly.genome.fa $OUT/human                    
 
 
 # End of job script 
