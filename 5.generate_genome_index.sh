@@ -43,7 +43,11 @@ echo "------------------------------------------------"
 module load STAR/2.7.9a-GCC-11.2.0
 
 REF_GENOME=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
-OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/ref
+OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star_index
+
+if [ ! -d "$OUT" ]; then
+  mkdir -p $OUT
+fi
 
 STAR --runThreadN 6 \
 --runMode genomeGenerate \
