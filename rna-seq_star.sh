@@ -59,7 +59,7 @@ STAR --runThreadN 6 \
 --readFilesIn $IN/IVF00"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz $IN/IVF00"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 --readFilesCommand zcat \
 --outFileNamePrefix $OUT/$INPUT_FILE \
---genomeDir $STAR_INDEX
+--genomeDir $STAR_INDEX \
 --sjdbGTFfile $REF/gencode.v42.primary_assembly.annotation.gtf --outSJfilterReads Unique --sjdbOverhang 149 \
 --outFilterType BySJout --outFilterMultimapNmax 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.1 \
 --alignSJoverhangMin 8 --alignSJDBoverhangMin 3 --alignIntronMin 20 \
