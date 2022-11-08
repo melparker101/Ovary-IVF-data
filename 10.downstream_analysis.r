@@ -1,118 +1,80 @@
-##example but try working alongside tutorial
+#############################################################
+## Downstream Analysis
+## melodyjparker14@gmail.com - Nov 22
+#############################################################
 
+##############################
+# 0 - Load librairies
+##############################
 
 library(tidyverse)
-
 library(DESeq2)
 library("AnnotationDbi")
-
-
 library("org.Hs.eg.db")
 library(geneplotter)
 library(tidyverse)
-
 library("pheatmap")
-
 library("RColorBrewer")
-
 library(ggbiplot)
 library(gplots)
 
-setwd("/Volumes/saskiar/BDI/RNA-seq/adipo/rna_seq")
+############################## 
+# 1 - Set working directory
+##############################
+setwd("//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem")
+# dir()
 
-setwd("~/Library/Mobile Documents/com~apple~CloudDocs/work/pcos")
+############################## 
+# 2 - Source file
+##############################
+input_file <- "lindg_ovary_IVF_gene_count.txt"
 
-dir()
+############################## 
+# 3 - Start Code
+##############################
+# read in count data
+df_count_data <- read.delim(input_file, header = T, sep="\t", row.names = 1,stringsAsFactors=FALSE)
+# head(count_data)
+# dim(count_data)
+count_data <- as.matrix(df_count_data)
+storage.mode(count_data) = "integer"
+# condition <- c(rep("healthy",3), rep("pcos",3))
 
+# retrieve list of samples
+samples <-colnames(count_data)
 
-countdata0 <- read.delim("GSE193123_gene_count_pcos_healthy.txt", header = T, sep="\t", row.names = 1,stringsAsFactors=FALSE)
-
-head(countdata0)
-
-dim(countdata0)
-
-countdata <- as.matrix(countdata0)
-
-
-
-storage.mode(countdata) = "integer"
-
-
-
-
-
-condition <- c(rep("healthy",3), rep("pcos",3))
-
-samples <-colnames(countdata)
-
-
-
-
-
-qc <- complete.cases(countdata)
-
+qc <- complete.cases(count_data)
 
 summary(qc)
 
-countdata <- na.omit(countdata)
+countdata <- na.omit(count_data)
 
 
 
-countdata0$symbol <- mapIds(org.Hs.eg.db,
-                            keys=row.names(countdata0),
-                            
-                            
+df_count_data$symbol <- mapIds(org.Hs.eg.db,
+                            keys=row.names(df_count_data),
                             column="SYMBOL",
                             keytype="ENSEMBL",
-                            
-                            
-                            
                             multiVals="first")
 
-
-
-
-countdata0$entrez <- mapIds(org.Hs.eg.db,
-                            
-                            
-                            keys=row.names(countdata0),
-                            
+df_count_data$entrez <- mapIds(org.Hs.eg.db,
+                            keys=row.names(df_count_data),
                             column="ENTREZID",
-                            
                             keytype="ENSEMBL",
-                            
-                            
                             multiVals="first")
-
-
-
 
 countdata0$uniprot <- mapIds(org.Hs.eg.db,
-                             
-                             
-                             keys=row.names(countdata0),
-                             
-                             column="UNIPROT",
-                             
-                             keytype="ENSEMBL",
-                             
-                             
-                             multiVals="first")
-
-head(countdata0)
-
-
+                            keys=row.names(countdata0),
+                            column="UNIPROT",
+                            keytype="ENSEMBL",
+                            multiVals="first")
+head(df_count_data)
 
 coldata <- as.data.frame(cbind(samples,condition))
-
-
 
 dim(countdata) #dimension of the counttable (identified genes and samples)
 
 head(countdata,5) #first 5 rows of the counttable
-
-
-
 
 ddsMat <- DESeqDataSetFromMatrix(countData = countdata,
                                  colData = coldata,
