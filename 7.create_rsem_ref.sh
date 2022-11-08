@@ -52,7 +52,7 @@ REF_GENOME=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.
 IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_reads
 OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem_ref
 
-if [ ! -d $OUT]; then
+if [ ! -d $OUT ]; then
   mkdir -p $OUT
 fi
 
