@@ -55,7 +55,7 @@ if [ ! -d "$OUT" ]; then
   mkdir -p $OUT
 fi
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/../merge_index)
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' /index.txt)
 
 
 rsem-calculate-expression --bam --paired-end -p 4 $IN/"$INPUT_FILE"Aligned.toTranscriptome.out.bam $REF $OUT/rsem_IVF00"$INPUT_FILE"
