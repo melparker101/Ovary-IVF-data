@@ -58,7 +58,7 @@ fi
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' /index.txt)
 
 
-rsem-calculate-expression --bam --paired-end -p 4 $IN/"$INPUT_FILE"Aligned.toTranscriptome.out.bam $REF $OUT/rsem_IVF00"$INPUT_FILE"
+rsem-calculate-expression --bam --paired-end -p 4 $IN/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $REF $OUT/rsem_"$INPUT_FILE"
 
 
 # End of job script
