@@ -18,8 +18,8 @@
 
 # Log locations which are relative to the current
 # working directory of the submission
-###$ -o output.log
-###$ -e error.log
+###$ -o logs/output.log
+###$ -e logs/error.log
 
 # Parallel environemnt settings
 #  For more information on these please see the wiki
@@ -44,15 +44,15 @@ echo "------------------------------------------------"
 # Begin writing your script here
 # module purge 
 # module use -a /apps/eb/dev/{skylake,ivybridge}/modules/all
-module load STAR/2.7.3a-GCC-9.3.0
+module load STAR/2.7.9a-GCC-11.2.0
 
 STAR_INDEX=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star_index
 REF=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
-IN==//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_results
+IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_reads
 OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star
 
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/../index.txt)
 
 
 STAR --runThreadN 6 \
