@@ -46,8 +46,9 @@ echo "------------------------------------------------"
 # module use -a /apps/eb/dev/{skylake,ivybridge}/modules/all
 module load STAR/2.7.3a-GCC-9.3.0
 
-REF=//well/lindgren/users/mzf347/alignment/ivf_cumulus/ref_genome
-IN==//well/lindgren/users/mzf347/alignment/ivf_cumulus/qc_trimmed_results
+STAR_INDEX=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star_index
+REF=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
+IN==//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_results
 OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star
 
 
@@ -55,11 +56,11 @@ INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
 
 
 STAR --runThreadN 6 \
---readFilesIn $IN/"$INPUT_FILE"_1_val_1.fq.gz $IN/"$INPUT_FILE"_2_val_2.fq.gz \
+--readFilesIn $IN/IVF00"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz $IN/IVF00"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 --readFilesCommand zcat \
 --outFileNamePrefix $OUT/$INPUT_FILE \
---genomeDir $REF/star \
---sjdbGTFfile $REF/Homo_sapiens.GRCh38.99.gtf --outSJfilterReads Unique --sjdbOverhang 100 \
+--genomeDir $STAR_INDEX
+--sjdbGTFfile $REF/gencode.v42.primary_assembly.annotation.gtf --outSJfilterReads Unique --sjdbOverhang 149 \
 --outFilterType BySJout --outFilterMultimapNmax 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.1 \
 --alignSJoverhangMin 8 --alignSJDBoverhangMin 3 --alignIntronMin 20 \
 --chimSegmentMin 20 --outSAMattributes All \
