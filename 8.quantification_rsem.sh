@@ -47,7 +47,7 @@ module purge
 module load RSEM/1.3.2-foss-2018b
 
 fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
-REF=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
+RSEM_REF=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
 IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star
 OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem
 
@@ -58,7 +58,7 @@ fi
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
 
 
-rsem-calculate-expression --bam --paired-end -p 4 $IN/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $REF/ $OUT/rsem_"$INPUT_FILE"
+rsem-calculate-expression --bam --paired-end -p 4 $IN/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $RSEM_REF/ $OUT/rsem_"$INPUT_FILE"
 
 
 # End of job script
