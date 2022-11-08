@@ -62,8 +62,8 @@ STAR --runThreadN 6 \
 --genomeDir $STAR_INDEX \
 --sjdbGTFfile $REF/gencode.v42.primary_assembly.annotation.gtf --outSJfilterReads Unique --sjdbOverhang 149 \
 --outFilterType BySJout --outFilterMultimapNmax 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.1 \
---alignSJoverhangMin 8 --alignSJDBoverhangMin 3 --alignIntronMin 20 \
---chimSegmentMin 20 --outSAMattributes All \
+--alignSJoverhangMin 8 --alignSJDBoverhangMin 3 --alignIntronMin 20 --chimSegmentMin 20 \
+--outSAMtype BAM SortedByCoordinate --outSAMattributes All \
 --quantMode TranscriptomeSAM  # output alignments translated into transcript coordinates
 
 # End of job script
