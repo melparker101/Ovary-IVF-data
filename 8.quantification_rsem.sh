@@ -58,7 +58,7 @@ fi
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
 
 
-rsem-calculate-expression --bam --paired-end -p 4 $IN/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $RSEM_REF/ $OUT/rsem_"$INPUT_FILE"
+rsem-calculate-expression --bam --paired-end -p 4 $IN/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $RSEM_REF/rsem_ref.grp $OUT/rsem_"$INPUT_FILE"
 
 
 # End of job script
