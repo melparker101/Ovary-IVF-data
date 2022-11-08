@@ -47,7 +47,7 @@ module purge
 module load RSEM/1.3.2-foss-2018b
 
 fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
-RSEM_REF=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
+RSEM_REF=//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem_ref
 IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star
 OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem
 
