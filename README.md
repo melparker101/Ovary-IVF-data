@@ -10,7 +10,9 @@ The adapters were removed using trimmomatic. No other trimming was necessary (ht
 ### 4. Perform QC on trimmed files
 Step 2 was repeated on the trimmed files to ensure the quality of these is sufficient.
 ### 5. Use STAR to create an index file
-The STAR manual recommends using the genome PRI assembly sequencing files. The current version (Nov-22) is Release 42 (GRCh38.p13). 
+The STAR manual recommends using the genome PRI assembly sequencing files. 
+https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf
+The current version (Nov-22) is Release 42 (GRCh38.p13). 
 ```
 wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/GRCh38.primary_assembly.genome.fa.gz
 wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/gencode.v42.primary_assembly.annotation.gtf.gz
