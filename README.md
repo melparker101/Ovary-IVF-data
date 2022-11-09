@@ -25,6 +25,7 @@ Star was used for read mapping. Alternatives include HISAT2, Bowtie, and TopHat2
 ### 8. Perform gene and isoform quantification
 Gene and isoform expression of rna-seq was estimated using RSEM. Alternatives include eXpress and Salmon.
 ### 9. Create counts matrix
+RSEM was used to create a count matrix.
 ### 10. Perform downstream analysis
 DESeq2 was used to perform downstream analysis. <br />
 https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
