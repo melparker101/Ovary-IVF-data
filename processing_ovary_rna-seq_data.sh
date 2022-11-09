@@ -121,7 +121,7 @@ rsem-prepare-reference --gtf $REF_GENOME/ref_genome_gtf \
 # The next steps will be run in parallel so require a separate script.
 
 # Run this script to perform QC, trim adapters, run QC again, if required.
-# sh quality_control.sh
+sh quality_control.sh
 multiqc qc_raw_results -o qc_raw_results
 multiqc qc_trimmed_results -o qc_trimmed_results
 
