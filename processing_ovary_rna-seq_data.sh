@@ -11,19 +11,14 @@
 ###################################
 # 0 - WORKFLOW
 ###################################
-# 0. make index for raw fastq file names if it doesn't exist
-# 1. make star genome index
-# 2. make rsem ref
-# wait till this is done
-# 3. run script2.sh
-### 1. fastq
-### 2. trim adapters
-### 3. fastq again
-### 4. map reads (star)
-### 5. quantification
-# make count matrix
-# 4. run script3.r
-### 1. downstream analysis
+# - make index file for raw fastq file names
+# - make STAR genome index
+# - make RSEM transcript ref
+# - run quality_control.sh
+# - use multiqc on fastqc results
+# - run mapping_and_quantification.sh
+# - generate count matrix
+# - run downstream_analysis.sh
 
 ###################################
 # 1 - JOB SETUP
@@ -76,14 +71,14 @@ ref_genome_fasta=GRCh38.primary_assembly.genome.fa
 ref_genome_gtf=gencode.v42.primary_assembly.annotation.gtf
 
 ###################################
-# 2 - LOAD MODULES
+# 3 - LOAD MODULES
 ###################################
 module load STAR/2.7.9a-GCC-11.2.0
 module load RSEM/1.3.2-foss-2018b
 module load MultiQC/1.9-foss-2019b-Python-3.7.4
 
 ###################################
-# 3 - START MAIN CODE
+# 4 - START MAIN CODE
 ###################################
 # Make an index for the raw reads file names
 if [ ! -f $FASTQ/index.txt ]
@@ -131,12 +126,10 @@ multiqc qc_raw_results -o qc_raw_results
 multiqc qc_trimmed_results -o qc_trimmed_results
 
 # map reads to reference genome, then quantify genes and isoforms.
-sh mapping_and_quantifying.sh
+sh mapping_and_quantification.sh
 
 # Generate a count matrix from the quantification results.
 rsem-generate-data-matrix $RSEM/*.genes.results >> full.count.genes.matrix.txt
 
 # Run downstream analysis
 sh downstream_analysis.r
-
-
