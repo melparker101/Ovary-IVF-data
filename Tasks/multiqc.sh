@@ -15,7 +15,7 @@ SECONDS=0
 #$ -q short.qe
 
 # Run the job in the current working directory
-#$ -wd //well/lindgren/users/mzf347/alignment/ivf_cumulus/qc_trimmed_results
+#$ -wd qc_trimmed_results
 
 # Log locations which are relative to the current
 # working directory of the submission
