@@ -40,17 +40,14 @@ echo "Started at: "`date`
 echo "------------------------------------------------"
 
 # Begin writing your script here
-# module purge 
-# module use -a /apps/eb/dev/{skylake,ivybridge}/modules/all
-# module load STAR/2.7.9a-GCC-11.2.0
 module load RSEM/1.3.2-foss-2018b
 
-fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
-STAR_INDEX=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star_index
-STAR_PATH=/gpfs3/apps/eb/2020b/skylake/software/STAR/2.7.9a-GCC-11.2.0/bin/STAR
-REF_GENOME=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
-IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_reads
-OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem_ref
+fastq=raw_reads
+STAR_INDEX=star_index
+STAR_PATH=software/STAR/2.7.9a-GCC-11.2.0/bin/STAR
+REF_GENOME=ref_genomes/homo_sapiens/gencode/GRCh38.p13
+IN=ivf_cumulus/trimmed_reads
+OUT=rsem_ref
 
 if [ ! -d $OUT ]; then
   mkdir -p $OUT
