@@ -9,6 +9,7 @@ git clone https://github.com/melparker101/Ovary-IVF-data
 Send a job to the cluster.
 
 ```
+# Input directories
 raw_reads=<raw_reads_dir>
 ref=<ref_genome_dir>
 
