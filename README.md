@@ -3,6 +3,8 @@
 ### 1. Clone the respository
 ```
 git clone https://github.com/melparker101/Ovary-IVF-data
+
+cd Ovary-IVF-data
 ```
 
 ### 2. Download reference genome files
@@ -14,6 +16,8 @@ wget https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens
 wget https://ftp.ensembl.org/pub/release-108/gtf/homo_sapiens/Homo_sapiens.GRCh38.108.gtf.gz
 
 for f in *.gz ; do gunzip -c "$f" > "${f%.*}" ; done
+
+cd ..
 ```
 
 ### 3. Process the data
