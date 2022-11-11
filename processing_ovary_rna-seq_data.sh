@@ -118,7 +118,7 @@ rsem-prepare-reference --gtf $REF_GENOME/$ref_genome_gtf \
               
 
 # Perform QC on raw reads
-mkdir $QC/qc_raw_results
+mkdir -p $QC/qc_raw_results
 fastqc $RAW_READS/*.fq -o $QC/qc_raw_results
 multiqc $QC/qc_raw_results -o $QC/qc_raw_results
 echo "QC on raw reads is finished."
@@ -133,7 +133,7 @@ fi
 
 
 # Perform QC on trimmed reads
-mkdir $QC/qc_trimmed_results
+mkdir -p $QC/qc_trimmed_results
 fastqc $TRIMMED_READS/*.fq -o $QC/qc_trimmed_results
 multiqc $QC/qc_trimmed_results -o $QC/qc_trimmed_results
 echo "QC on trimmed reads is finished."
