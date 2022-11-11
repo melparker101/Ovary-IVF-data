@@ -65,20 +65,6 @@ do
     esac
 done
 
-# RAW_READS=$1  
-# TRIMMED_READS=$2  
-# REF=$4 
-# STAR_INDEX=$3  
-# STAR_OUT=$4  
-# RSEM_REF=$5
-# RSEM_OUT=$6
-
-# RAW_READS=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
-# IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_reads
-# REF=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
-# STAR_INDEX=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star_index
-# STAR_OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star
-
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $RAW_READS/index.txt)
 
 ###################################
