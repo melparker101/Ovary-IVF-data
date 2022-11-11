@@ -16,7 +16,7 @@ cd <ref_genome_dir>
 wget https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 wget https://ftp.ensembl.org/pub/release-108/gtf/homo_sapiens/Homo_sapiens.GRCh38.108.gtf.gz
 
-# decompress files
+# Decompress files
 for f in *.gz ; do gunzip -c "$f" > "${f%.*}" ; done
 
 cd ..
