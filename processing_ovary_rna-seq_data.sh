@@ -22,7 +22,6 @@
 ###################################
 # 1 - JOB SETUP
 ###################################
-
 # Specify a job name
 #$ -N ovary_rna-seq_processing
 
