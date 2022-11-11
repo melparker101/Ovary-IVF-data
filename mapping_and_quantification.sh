@@ -3,7 +3,7 @@
 #############################################################
 ## Processing Lindgren In-House Ovary Data
 ## melodyjparker14@gmail.com - Nov 22
-## This script processes maps reads to a reference genome 
+## This script maps reads to a reference genome 
 ## and quantifies genes and isoforms.
 ## It inputs raw reads and a reference genome.
 ## It outputs a count matrix.
@@ -14,6 +14,8 @@
 ###################################
 # 0 - WORKFLOW
 ###################################
+# - map reads to reference genome
+# - quantify genes and isoforms
 
 ###################################
 # 1 - JOB SETUP
@@ -88,9 +90,9 @@ module load RSEM/1.3.2-foss-2018b
 ###################################
 # 4 - START MAIN CODE
 ###################################
+# Map reads to reference genome
 mkdir -p $STAR
 
-# Map reads to reference genome
 STAR --runThreadN 6 \
 --readFilesIn $TRIMMED/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz $IN/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 --readFilesCommand zcat \
