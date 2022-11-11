@@ -1,7 +1,7 @@
-- Ovary-IVF-data
+Ovary-IVF-data
 Workflow for aligning raw ovary reads. Fastq files were taken and a bam file was produced.
 
-1. Merge files
+1. ### Merge files
 This was not necessary as the files were already merged.
 2. Perform QC
 QC was performed on the data using FastQC, then MultiQC was run to visualise the results together. All files failed on adapter content and also on per base sequence content.
