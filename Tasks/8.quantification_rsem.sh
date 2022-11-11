@@ -46,10 +46,10 @@ echo "------------------------------------------------"
 module purge
 module load RSEM/1.3.2-foss-2018b
 
-fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
-RSEM_REF=//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem_ref
-IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star
-OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem
+fastq=raw_reads
+RSEM_REF=rsem_ref
+IN=star
+OUT=rsem
 
 if [ ! -d "$OUT" ]; then
   mkdir -p $OUT
