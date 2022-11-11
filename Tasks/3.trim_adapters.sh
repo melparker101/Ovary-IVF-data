@@ -32,8 +32,8 @@ SECONDS=0
 #$ -pe shmem 4
 #$ -t 1:15
 
-fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
-OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_reads2
+fastq=raw_reads
+OUT=trimmed_reads
 
 # index is a file with list of 8 digit numbers (part of the file name)
 # this means input file is the task_id'th line of that list
