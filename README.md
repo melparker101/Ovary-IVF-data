@@ -6,10 +6,11 @@ git clone https://github.com/melparker101/Ovary-IVF-data
 ```
 
 ### 2. Process the data
-Send a job to the cluster
+Send a job to the cluster.
 
 ```
 raw_reads=<raw_reads_dir>
 ref=<ref_genome_dir>
 
+qsub processing_ovary_rna-seq_data.sh $raw_reads $ref
 ```
