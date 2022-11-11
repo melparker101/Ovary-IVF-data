@@ -40,7 +40,7 @@ echo "Started at: "`date`
 echo "------------------------------------------------"
 
 # Begin writing your script here
-fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
+fastq=raw_reads
 
 
 for f in $fastq/IVF*R1*; do g="${f%_R1*}" ; echo ${g##*/} >> $fastq/index.txt ; done
