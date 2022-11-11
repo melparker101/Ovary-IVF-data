@@ -55,23 +55,23 @@ echo "------------------------------------------------"
 while getopts raw:trimmed:ref:star_index:star:rsem_ref:rsem: flag
 do
     case "${flag}" in
-        raw) RAW=${OPTARG};;
-        trimmed) TRIMMED=${OPTARG};;
-        ref) REF=${OPTARG};;
-        star_index) STAR_INDEX=${OPTARG};;
-        star) STAR=${OPTARG};;
-        rsem_ref) RSEM_REF=${OPTARG};;
-        rsem) RSEM=${OPTARG};;
+        raw) RAW_READS=${OPTARG};;  # path of raw reads
+        trimmed) TRIMMED_READS=${OPTARG};;  # path of trimmed reads
+        ref) REF=${OPTARG};;  # path of reference genome
+        star_index) STAR_INDEX=${OPTARG};;  # path of STAR genome index 
+        star) STAR=${OPTARG};;  # path of output directory
+        rsem_ref) RSEM_REF=${OPTARG};;  # path of RSEM reference
+        rsem) RSEM_OUT=${OPTARG};;  # path of RSEM output
     esac
 done
 
-# RAW_READS=$1  # path of raw reads
-# TRIMMED_READS=$2  # path of trimmed reads
-# REF=$4  # path of reference genome
-# STAR_INDEX=$3  # path of STAR genome index 
-# STAR_OUT=$4  # path of output directory
+# RAW_READS=$1  
+# TRIMMED_READS=$2  
+# REF=$4 
+# STAR_INDEX=$3  
+# STAR_OUT=$4  
 # RSEM_REF=$5
-# RSEM=$6
+# RSEM_OUT=$6
 
 # RAW_READS=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
 # IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_reads
@@ -79,7 +79,7 @@ done
 # STAR_INDEX=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star_index
 # STAR_OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' RAW_READS/index.txt)
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $RAW_READS/index.txt)
 
 ###################################
 # 3 - LOAD MODULES
@@ -91,10 +91,10 @@ module load RSEM/1.3.2-foss-2018b
 # 4 - START MAIN CODE
 ###################################
 # Map reads to reference genome
-mkdir -p $STAR
+mkdir -p $STAR_OUT
 
 STAR --runThreadN 6 \
---readFilesIn $TRIMMED/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz $IN/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
+--readFilesIn $TRIMMED_READS/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz $TRIMMED_READS/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 --readFilesCommand zcat \
 --outFileNamePrefix $STAR_OUT/$INPUT_FILE \
 --genomeDir $STAR_INDEX \
@@ -109,7 +109,7 @@ echo "Mapping finished."
 
 # Quantify genes and isoforms
 mkdir -p $RSEM
-rsem-calculate-expression --bam --paired-end -p 4 $STAR_OUT/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $RSEM_REF/human $RSEM/rsem_"$INPUT_FILE"
+rsem-calculate-expression --bam --paired-end -p 4 $STAR_OUT/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $RSEM_REF/human $RSEM_OUT/rsem_"$INPUT_FILE"
 
 echo "Quantification finished."
 
