@@ -22,6 +22,9 @@ for f in *.gz ; do gunzip -c "$f" > "${f%.*}" ; done
 cd ..
 ```
 
+GMT files can be downloaded from:
+https://wikipathways-data.wmcloud.org/current/gmt/
+
 ### 3. Process the data
 Send a job to the cluster.
 
