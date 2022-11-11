@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #############################################################
-## Processing Lindgren In-House Ovary Data - QC
+## Processing Lindgren In-House Ovary Data - Trimming Reads
 ## melodyjparker14@gmail.com - Nov 22
 ## This script trims raw reads/removes adapters from raw reads.
 ## It inputs raw reads and outputs trimmed reads.
