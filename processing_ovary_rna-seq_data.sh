@@ -3,8 +3,7 @@
 #############################################################
 ## Processing Lindgren In-House Ovary Data
 ## melodyjparker14@gmail.com - Nov 22
-## This script takes raw, paired fastq files, removes adapters, quality checks, then maps them to the hg38 108 reference genome. 
-## From this, a count matrix is produced which then enables downstream analysis.
+## This script takes maps fastq reads to the hg38 108 reference genome. 
 ## Based on a workflow provided by Saskia Reibe.
 #############################################################
 
@@ -25,7 +24,7 @@
 ###################################
 
 # Specify a job name
-#$ -N create_rsem_ref
+#$ -N ovary_rna-seq_processing
 
 # Project name and target queue
 #$ -P lindgren.prjc
