@@ -32,8 +32,8 @@ SECONDS=0
 #$ -pe shmem 4
 #$ -t 1-15
 
-fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
-OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/qc_raw_results
+fastq=raw_reads
+OUT=qc_raw_results
 
 # this means input file is the task_id'th line of that list
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
