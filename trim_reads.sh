@@ -13,7 +13,7 @@
 # 1 - JOB SETUP
 ###################################
 # Specify a job name
-#$ -N quality_control.sh
+#$ -N trim_reads.sh
 
 # Project name and target queue
 #$ -P lindgren.prjc
