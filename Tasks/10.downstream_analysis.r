@@ -1,6 +1,8 @@
 #############################################################
 ## Downstream Analysis
 ## melodyjparker14@gmail.com - Nov 22
+## Based off Saskia Reibe's code and
+## https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
 #############################################################
 
 ##############################
@@ -21,13 +23,13 @@ library(gplots)
 ############################## 
 # 1 - Set working directory
 ##############################
-setwd("//well/lindgren/users/mzf347/alignment/ivf_cumulus/rsem")
+setwd("ivf_cumulus")
 # dir()
 
 ############################## 
 # 2 - Source file
 ##############################
-input_file <- "lindg_ovary_IVF_gene_count.txt"
+input_file <- "full.count.genes.matrix.txt"
 
 ############################## 
 # 3 - Start Code
@@ -72,7 +74,7 @@ head(df_count_data)
 
 coldata <- as.data.frame(cbind(samples,condition))
 
-dim(countdata) #dimension of the counttable (identified genes and samples)
+dim(countdata) # dimension of the count table (identified genes and samples)
 
 head(countdata,5) #first 5 rows of the counttable
 
@@ -375,7 +377,7 @@ ridgeplot(ego3)
 
 
 
-wp2gene <- read.gmt("~/Library/Mobile Documents/com~apple~CloudDocs/work/resources/wikipathways-20220310-gmt-Homo_sapiens.gmt")
+wp2gene <- read.gmt("resources/wikipathways-20220310-gmt-Homo_sapiens.gmt")
 
 head(wp2gene)
 wp2gene <- wp2gene %>% tidyr::separate(term, c("name","version","wpid","org"), "%")
