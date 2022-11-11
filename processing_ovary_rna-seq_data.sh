@@ -103,8 +103,8 @@ fi
 STAR --runThreadN 6 \
 --runMode genomeGenerate \
 --genomeDir $STAR_INDEX \
---genomeFastaFiles $REF_GENOME/ref_genome_fasta \
---sjdbGTFfile $REF_GENOME/ref_genome_gtf \
+--genomeFastaFiles $REF_GENOME/$ref_genome_fasta \
+--sjdbGTFfile $REF_GENOME/$ref_genome_gtf \
 --sjdbOverhang 149  # read-length - 1
 
 # Build a transcript reference using RSEM.
@@ -113,8 +113,8 @@ then
   mkdir -p $RSEM_REF
 fi
 
-rsem-prepare-reference --gtf $REF_GENOME/ref_genome_gtf \
-   				     $REF_GENOME/ref_genome_fasta $RSEM_REF/human
+rsem-prepare-reference --gtf $REF_GENOME/$ref_genome_gtf \
+   				     $REF_GENOME/$ref_genome_fasta $RSEM_REF/human
               
 
 # Perform QC on raw reads
