@@ -35,7 +35,6 @@ SECONDS=0
 fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
 OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/qc_raw_results
 
-# merge index is a file with list of 8 digit numbers (part of the file name)
 # this means input file is the task_id'th line of that list
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
 
