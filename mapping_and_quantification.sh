@@ -59,7 +59,7 @@ do
         trimmed) TRIMMED_READS=${OPTARG};;  # path of trimmed reads
         ref) REF=${OPTARG};;  # path of reference genome
         star_index) STAR_INDEX=${OPTARG};;  # path of STAR genome index 
-        star) STAR=${OPTARG};;  # path of output directory
+        star) STAR_OUT=${OPTARG};;  # path of output directory
         rsem_ref) RSEM_REF=${OPTARG};;  # path of RSEM reference
         rsem) RSEM_OUT=${OPTARG};;  # path of RSEM output
     esac
@@ -108,7 +108,7 @@ echo "Mapping finished."
 
 
 # Quantify genes and isoforms
-mkdir -p $RSEM
+mkdir -p $RSEM_OUT
 rsem-calculate-expression --bam --paired-end -p 4 $STAR_OUT/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $RSEM_REF/human $RSEM_OUT/rsem_"$INPUT_FILE"
 
 echo "Quantification finished."
