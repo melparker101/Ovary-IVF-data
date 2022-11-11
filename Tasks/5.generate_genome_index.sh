@@ -42,8 +42,8 @@ echo "------------------------------------------------"
 # Load modules
 module load STAR/2.7.9a-GCC-11.2.0
 
-REF_GENOME=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
-OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star_index
+REF_GENOME=ref_genomes/homo_sapiens/gencode/GRCh38.p13
+OUT=star_index
 
 if [ ! -d "$OUT" ]; then
   mkdir -p $OUT
@@ -55,5 +55,6 @@ STAR --runThreadN 6 \
 --genomeFastaFiles $REF_GENOME/GRCh38.primary_assembly.genome.fa \
 --sjdbGTFfile $REF_GENOME/gencode.v42.primary_assembly.annotation.gtf \
 --sjdbOverhang 149  # read-length - 1
+
 
 # End of job script
