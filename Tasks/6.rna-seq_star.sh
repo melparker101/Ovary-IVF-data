@@ -46,11 +46,11 @@ echo "------------------------------------------------"
 # module use -a /apps/eb/dev/{skylake,ivybridge}/modules/all
 module load STAR/2.7.9a-GCC-11.2.0
 
-fastq=//well/lindgren/users/mzf347/alignment/ivf_cumulus/raw_reads
-STAR_INDEX=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star_index
-REF=//well/lindgren/users/mzf347/ref_genomes/homo_sapiens/gencode/GRCh38.p13
-IN=//well/lindgren/users/mzf347/alignment/ivf_cumulus/trimmed_reads
-OUT=//well/lindgren/users/mzf347/alignment/ivf_cumulus/star
+fastq=raw_reads
+STAR_INDEX=star_index
+REF=ref_genomes/homo_sapiens/gencode/GRCh38.p13
+IN=trimmed_reads
+OUT=star
 
 
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' /index.txt)
@@ -66,5 +66,6 @@ STAR --runThreadN 6 \
 --alignSJoverhangMin 8 --alignSJDBoverhangMin 3 --alignIntronMin 20 --chimSegmentMin 20 \
 --outSAMtype BAM SortedByCoordinate --outSAMattributes All \
 --quantMode TranscriptomeSAM  # output alignments translated into transcript coordinates
+
 
 # End of job script
