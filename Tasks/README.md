@@ -5,6 +5,7 @@ Workflow for aligning raw ovary reads. Fastq files were taken and a bam file was
 This was not necessary as the files were already merged.
 #### 2. Perform QC
 QC was performed on the data using FastQC, then MultiQC was run to visualise the results together. All files failed on adapter content and also on per base sequence content.
+- https://home.cc.umanitoba.ca/~psgendb/doc/fastqc.help
 #### 3. Trim files
 The adapters were removed using trimmomatic. No other trimming was necessary (https://sequencing.qcfail.com/articles/positional-sequence-bias-in-random-primed-libraries/).
 #### 4. Perform QC on trimmed files
