@@ -12,9 +12,13 @@ cd Ovary-IVF-data
 mkdir <ref_genome_dir>
 cd <ref_genome_dir>
 
-# Download files
+# Download ensembl files
 wget https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 wget https://ftp.ensembl.org/pub/release-108/gtf/homo_sapiens/Homo_sapiens.GRCh38.108.gtf.gz
+
+# Alternatively, download gencode files
+wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/GRCh38.primary_assembly.genome.fa.gz
+wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/gencode.v42.primary_assembly.annotation.gtf.gz
 
 # Decompress files
 for f in *.gz ; do gunzip -c "$f" > "${f%.*}" ; done
