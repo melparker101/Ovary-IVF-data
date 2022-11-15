@@ -36,8 +36,8 @@ input_file <- "full.count.genes.matrix.txt"
 ##############################
 # read in count data
 df_count_data <- read.delim(input_file, header = T, sep="\t", row.names = 1,stringsAsFactors=FALSE)
-# head(count_data)
-# dim(count_data)
+# head(df_count_data)
+# dim(df_count_data)
 count_data <- as.matrix(df_count_data)
 storage.mode(count_data) = "integer"
 # condition <- c(rep("healthy",3), rep("pcos",3))
@@ -46,91 +46,87 @@ storage.mode(count_data) = "integer"
 samples <-colnames(count_data)
 
 qc <- complete.cases(count_data)
-
 summary(qc)
-
 countdata <- na.omit(count_data)
 
-
-
+# Add gene symbols
 df_count_data$symbol <- mapIds(org.Hs.eg.db,
                             keys=row.names(df_count_data),
                             column="SYMBOL",
                             keytype="ENSEMBL",
                             multiVals="first")
-
+# Add entrez ID
 df_count_data$entrez <- mapIds(org.Hs.eg.db,
                             keys=row.names(df_count_data),
                             column="ENTREZID",
                             keytype="ENSEMBL",
                             multiVals="first")
 
-countdata0$uniprot <- mapIds(org.Hs.eg.db,
-                            keys=row.names(countdata0),
+df_count_data$uniprot <- mapIds(org.Hs.eg.db,
+                            keys=row.names(df_count_data),
                             column="UNIPROT",
                             keytype="ENSEMBL",
                             multiVals="first")
 head(df_count_data)
 
-coldata <- as.data.frame(cbind(samples,condition))
+# coldata <- as.data.frame(cbind(samples,condition))
 
 dim(countdata) # dimension of the count table (identified genes and samples)
 
 head(countdata,5) #first 5 rows of the counttable
 
 ddsMat <- DESeqDataSetFromMatrix(countData = countdata,
-                                 colData = coldata,
-                                 
-                                 design = ~condition)
+                                 colData = coldata
+                                design=)
 
 
-head(assay(ddsMat))
+# head(assay(ddsMat))
 
 #normalised vs not normalised
 
-ddsMat <- estimateSizeFactors(ddsMat)
+# ddsMat <- estimateSizeFactors(ddsMat)
 
-sizeFactors(ddsMat)
+# sizeFactors(ddsMat)
 
-GeneCounts <- counts(ddsMat)
-
-
-idx.nz <- apply(GeneCounts, 1, function(x) { all(x > 0)})
+# GeneCounts <- counts(ddsMat)
 
 
-sum(idx.nz)
+# idx.nz <- apply(GeneCounts, 1, function(x) { all(x > 0)})
+
+
+# sum(idx.nz)
 
 
 
-multidensity( counts(ddsMat, normalized = F)[idx.nz ,],    
+# multidensity( counts(ddsMat, normalized = F)[idx.nz ,],    
               
               
               xlab="mean counts", xlim=c(0, 1000),main="Not normalised data")
 
 
-head(counts(ddsMat, normalized = F))
+# head(counts(ddsMat, normalized = F))
 
-multidensity( counts(ddsMat, normalized = T)[idx.nz ,],    
+# multidensity( counts(ddsMat, normalized = T)[idx.nz ,],    
               
               xlab="mean counts", xlim=c(0, 1000),main="Normalised data")
 
 
 
-dds <- ddsMat
+# dds <- ddsMat
 
 
-nrow(dds)    #number of rows in raw data
+# nrow(dds)    #number of rows in raw data
 
 
-dds <- dds[ rowSums(counts(dds)) > 1, ]
+# dds <- dds[ rowSums(counts(dds)) > 1, ]
 
 
-nrow(dds)  #number of rows after filtering
+# nrow(dds)  #number of rows after filtering
 
 
 
 
-rld <- vst(dds)
+# rld <- vst(dds)
 
 
 #PCA
