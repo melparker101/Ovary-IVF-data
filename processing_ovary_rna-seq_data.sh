@@ -175,9 +175,9 @@ fastqc $TRIMMED_READS/IVF*fastq.gz -o $QC/qc_trimmed_results
 multiqc $QC/qc_trimmed_results -o $QC/qc_trimmed_results
 
 # Perform MultiQC on paired trimmed reads only
-mkdir -p $QC/qc_trimmed_reads/paired
-cp $QC/trimmed_reads/*P*.fastq paired/
-multiqc $QC/trimmed_reads/paired -o $QC/trimmed_reads/paired
+mkdir -p $QC/qc_trimmed_results/paired
+cp $QC/qc_trimmed_results/*P_fastqc* $QC/qc_trimmed_results/paired/
+multiqc $QC/qc_trimmed_results/paired -o $QC/qc_trimmed_results/paired
 echo "QC on trimmed reads is finished."
 
 
