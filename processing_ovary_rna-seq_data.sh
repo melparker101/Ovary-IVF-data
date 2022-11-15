@@ -75,12 +75,18 @@ QC=qc_results
 ###################################
 # 3 - LOAD MODULES
 ###################################
+# There are conflicts with these modules
+# so load them individually, when necessary
+# Alternatively, make a conda enviroment where they don't conflict
+# then run: source $HOME/.bashrc; conda activate <env_name>
+
 module load STAR/2.7.9a-GCC-11.2.0
-module load FastQC/0.11.9-Java-11
-module load MultiQC/1.9-foss-2019b-Python-3.7.4
-#module load RSEM/1.3.2-foss-2018b
-module load R/4.1.2-foss-2021b
-module load R-bundle-Bioconductor/3.14-foss-2021b-R-4.1.2
+# module load FastQC/0.11.9-Java-11
+# module load MultiQC/1.9-foss-2019b-Python-3.7.4
+# module load RSEM/1.3.2-foss-2018b
+# module load R/4.1.2-foss-2021b
+# module load R-bundle-Bioconductor/3.14-foss-2021b-R-4.1.2
+
 
 ###################################
 # 4 - FUNCTIONS
@@ -95,8 +101,6 @@ ret () { cat /tmp/capture.out; }
 ###################################
 # Have script stop if there is an error
 set -e
-
-<<comment
 
 
 # Make an index for the raw reads file names
@@ -120,7 +124,11 @@ STAR --runThreadN 6 \
 --sjdbGTFfile $REF_GENOME/$ref_genome_gtf \
 --sjdbOverhang 149  # read-length - 1
 
-# Build a transcript reference using RSEM.
+
+# Build a transcript reference using RSEM
+module purge
+module load RSEM/1.3.2-foss-2018b
+
 if [ ! -p $RSEM_REF ]
 then
   mkdir -p $RSEM_REF
@@ -131,19 +139,21 @@ rsem-prepare-reference --gtf $REF_GENOME/$ref_genome_gtf \
 
 
 # Perform QC on raw reads
+module purge
+module load FastQC/0.11.9-Java-11
+module load MultiQC/1.9-foss-2019b-Python-3.7.4
+
 mkdir -p $QC/qc_raw_results
 # for f in $RAW_READS/IVF*fastq.gz; do fastqc $f -o $QC/qc_raw_results; done
 fastqc $RAW_READS/IVF*fastq.gz -o $QC/qc_raw_results
 multiqc $QC/qc_raw_results -o $QC/qc_raw_results
 echo "QC on raw reads is finished."
 
-comment
 
 # Trim reads
 # This will be run in parallel so requires a separate script
 if [ ! -p $TRIMMED_READS ]
 then
-  source $HOME/.bashrc
   qsub trim_reads.sh $RAW_READS $TRIMMED_READS | cap
 fi
 
@@ -156,7 +166,7 @@ echo $trim_job
 while
 qstat | grep "$trim_job" > /dev/null; do sleep 30; echo "sleeping" ; done
 
-echo "trimming job finished"
+echo "Read trimming finished."
 
 
 # Perform QC on trimmed reads
@@ -170,18 +180,26 @@ cp $QC/trimmed_reads/*P*.fastq paired/
 multiqc $QC/trimmed_reads/paired -o $QC/trimmed_reads/paired
 echo "QC on trimmed reads is finished."
 
-<<comment
 
-# map reads to reference genome, then quantify genes and isoforms.
+# Map reads to reference genome, then quantify genes and isoforms
 sh mapping_and_quantification.sh -raw $RAW_READS -trimmed $TRIMMED_READS -ref $REF_GENOME \
                                  -star_index $STAR_INDEX -star $STAR_OUT \
                                  -rsem_ref $RSEM_REF -rsem $RSEM_OUT
 
-# Generate a count matrix from the quantification results.
+# Generate a count matrix from the quantification results
+module purge
+module load RSEM/1.3.2-foss-2018b
+
 rsem-generate-data-matrix $RSEM_OUT/*.genes.results >> full.count.genes.matrix.txt
 
 # Trim the version number off the ensembl IDs
 sed 's/\(ENSG[0-9]*\)\.[0-9]*/\1/g' full.count.genes.matrix.txt > count_matrix.txt
 
 # Run downstream analysis
+# module load R/4.1.2-foss-2021b
+# module load R-bundle-Bioconductor/3.14-foss-2021b-R-4.1.2
 # sh downstream_analysis.r
+
+
+echo "Processing complete."
+# End of job
