@@ -31,7 +31,7 @@
 
 # Project name and target queue
 #$ -P lindgren.prjc
-#$ -q short.qe 
+#$ -q short.qe
 
 # Run the job in the current working directory
 #$ -cwd -j y
@@ -76,15 +76,26 @@ QC=qc_results
 # 3 - LOAD MODULES
 ###################################
 module load STAR/2.7.9a-GCC-11.2.0
-module load RSEM/1.3.2-foss-2018b
 module load FastQC/0.11.9-Java-11
 module load MultiQC/1.9-foss-2019b-Python-3.7.4
+#module load RSEM/1.3.2-foss-2018b
 
 ###################################
-# 4 - START MAIN CODE
+# 4 - FUNCTIONS
+###################################
+# Capture output of a command
+# https://stackoverflow.com/questions/24283097/reusing-output-from-last-command-in-bash
+cap () { tee /tmp/capture.out; }
+ret () { cat /tmp/capture.out; }
+
+###################################
+# 5 - START MAIN CODE
 ###################################
 # Have script stop if there is an error
 set -e
+
+<<comment
+
 
 # Make an index for the raw reads file names
 if [ ! -f $RAW_READS/index.txt ]
@@ -114,30 +125,50 @@ then
 fi
 
 rsem-prepare-reference --gtf $REF_GENOME/$ref_genome_gtf \
-   				     $REF_GENOME/$ref_genome_fasta $RSEM_REF/human
-              
+                                     $REF_GENOME/$ref_genome_fasta $RSEM_REF/human
+
 
 # Perform QC on raw reads
 mkdir -p $QC/qc_raw_results
-fastqc $RAW_READS/*.fq -o $QC/qc_raw_results
+# for f in $RAW_READS/IVF*fastq.gz; do fastqc $f -o $QC/qc_raw_results; done
+fastqc $RAW_READS/IVF*fastq.gz -o $QC/qc_raw_results
 multiqc $QC/qc_raw_results -o $QC/qc_raw_results
 echo "QC on raw reads is finished."
 
+comment
 
 # Trim reads
 # This will be run in parallel so requires a separate script
 if [ ! -p $TRIMMED_READS ]
 then
-  sh trim_reads.sh $RAW_READS $TRIMMED_READS
+  source $HOME/.bashrc
+  qsub trim_reads.sh $RAW_READS $TRIMMED_READS | cap
 fi
+
+# Extract job name for trim_reads.sh job
+trim_job=$(ret | awk -v RS='[0-9]+' '$0=RT' | head -1)
+
+echo $trim_job
+
+# Wait until the job has finished
+while
+qstat | grep "$trim_job" > /dev/null; do sleep 30; echo "sleeping" ; done
+
+echo "trimming job finished"
 
 
 # Perform QC on trimmed reads
 mkdir -p $QC/qc_trimmed_results
-fastqc $TRIMMED_READS/*.fq -o $QC/qc_trimmed_results
+fastqc $TRIMMED_READS/IVF*fastq.gz -o $QC/qc_trimmed_results
 multiqc $QC/qc_trimmed_results -o $QC/qc_trimmed_results
+
+# Perform MultiQC on paired trimmed reads only
+mkdir -p $QC/qc_trimmed_reads/paired
+cp $QC/trimmed_reads/*P*.fastq paired/
+multiqc $QC/trimmed_reads/paired -o $QC/trimmed_reads/paired
 echo "QC on trimmed reads is finished."
 
+<<comment
 
 # map reads to reference genome, then quantify genes and isoforms.
 sh mapping_and_quantification.sh -raw $RAW_READS -trimmed $TRIMMED_READS -ref $REF_GENOME \
