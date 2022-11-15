@@ -79,6 +79,8 @@ module load STAR/2.7.9a-GCC-11.2.0
 module load FastQC/0.11.9-Java-11
 module load MultiQC/1.9-foss-2019b-Python-3.7.4
 #module load RSEM/1.3.2-foss-2018b
+module load R/4.1.2-foss-2021b
+module load R-bundle-Bioconductor/3.14-foss-2021b-R-4.1.2
 
 ###################################
 # 4 - FUNCTIONS
