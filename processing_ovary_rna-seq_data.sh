@@ -180,5 +180,8 @@ sh mapping_and_quantification.sh -raw $RAW_READS -trimmed $TRIMMED_READS -ref $R
 # Generate a count matrix from the quantification results.
 rsem-generate-data-matrix $RSEM_OUT/*.genes.results >> full.count.genes.matrix.txt
 
+# Trim the version number off the ensembl IDs
+sed 's/\(ENSG[0-9]*\)\.[0-9]*/\1/g' full.count.genes.matrix.txt > count_matrix.txt
+
 # Run downstream analysis
 # sh downstream_analysis.r
