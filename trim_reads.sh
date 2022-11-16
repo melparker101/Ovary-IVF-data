@@ -46,7 +46,7 @@ echo "------------------------------------------------"
 ###################################
 IN=$1  # raw reads directory
 OUT=$2  # trimmed reads directory
-$ADAPTER="NexteraPE-PE.fa"
+ADAPTER=NexteraPE-PE.fa
 
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
 
@@ -73,4 +73,8 @@ $OUT/"$INPUT_FILE"_R2_001_trimmed_U.fastq.gz \
 ILLUMINACLIP:$EBROOTTRIMMOMATIC/adapters/"$ADAPTER":2:30:10 \
 MINLEN:20
 
+
 echo "Reads trimmed: adapter removed."
+
+
+# Job finished
