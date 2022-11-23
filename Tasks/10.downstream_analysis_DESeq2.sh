@@ -10,8 +10,8 @@
 # 0 - Workflow
 ##############################
 ## - Create a DESeqDataSet object
-## - 
-##
+## - Perform exploratory analysis and visualization
+## - Perform differential expression analysis
 
 ##############################
 # 1 - Load librairies
@@ -27,6 +27,10 @@
 # library(ggbiplot)
 # library(gplots)
 
+library("dplyr")
+library("ggplot2")   # For variance distribution plots
+library("glmpca")  # For GLM-PCA
+
 ############################## 
 # 2 - Set working directory
 ##############################
@@ -37,13 +41,15 @@ dir()
 # 3 - Source file
 ##############################
 # input_file <- "full.count.genes.matrix.txt"
-in_counts_file <- "count_matrix2.txt"
+in_counts_file <- "count_matrix2.txt"  # Counts should NOT be normalised
 in_phenotype_file <- "IVF_phenotypic_data_repox_15nov2022_trimmed.csv"
 out_norm_counts <- "normalized_counts.txt"
 
 ############################## 
 # 4 - Start Code
 ##############################
+### CREATE DESEQDATASET OBJECT ###
+
 # Read in data
 count_data <- read.delim(in_counts_file, header = T, sep="\t", row.names = 1,stringsAsFactors=FALSE)
 pheno_data <- read.csv(in_phenotype_file)
@@ -128,22 +134,6 @@ sum(idx.nz)
 # multidensity( counts(ddsMat, normalized = F)[idx.nz ,],         
 #							xlab="mean counts", xlim=c(0, 1000),main="Not normalised data")
 
-# Variance distribution
-vsd <- vst(ddsMat, blind = FALSE)
-head(assay(vsd), 3)
-colData(vsd)
-
-rld <- rlog(ddsMat, blind = FALSE)
-head(assay(rld), 3)
-colData(rld)                                
-                                 
-                                 
-                                 
-                                 
-                                 
-                                 
-                                 
-
 # Add symbol, entrez, and uniprot columns to the dataframe
 count_data$symbol <- mapIds(org.Hs.eg.db,
                             keys=row.names(count_data),                                                      
@@ -161,7 +151,117 @@ count_data$uniprot <- mapIds(org.Hs.eg.db,
                              keys=row.names(count_data),
                              column="UNIPROT",
                              keytype="ENSEMBL",
-                             multiVals="first")            
+                             multiVals="first")    
+
+### PERFORM EXPLORATORY ANALYSIS AND VISUALISATION ###
+
+# Variance stabilizing transformation
+vsd <- vst(ddsMat, blind = FALSE)
+head(assay(vsd), 3)
+colData(vsd)
+
+# Regularized-logarithm transformation
+rld <- rlog(ddsMat, blind = FALSE)
+head(assay(rld), 3)
+colData(rld)      
+
+# Compare variance distribution for log2+1, vst and rlog transformations
+df <- bind_rows(
+  as_data_frame(log2(counts(ddsMat, normalized=TRUE)[, 1:2]+1)) %>%
+         mutate(transformation = "log2(x + 1)"),
+  as_data_frame(assay(vsd)[, 1:2]) %>% mutate(transformation = "vst"),
+  as_data_frame(assay(rld)[, 1:2]) %>% mutate(transformation = "rlog"))
+  
+colnames(df)[1:2] <- c("x", "y")  
+
+lvls <- c("log2(x + 1)", "vst", "rlog")
+df$transformation <- factor(df$transformation, levels=lvls)
+
+ggplot(df, aes(x = x, y = y)) + geom_hex(bins = 80) +
+  coord_fixed() + facet_grid( . ~ transformation)
+  
+# From the graphs, it appears that rlog gives the best variance distribution
+# Use rlog for PCA
+
+# Basic PCA
+plotPCA(rld)
+
+# Annotated PCA
+plotPCA(rld, intgroup = c("condition", "samples"))
+
+# Make a PCA table
+pcaData <- plotPCA(rld, intgroup = c("condition", "samples"), returnData = TRUE)
+pcaData
+
+percentVar <- round(100 * attr(pcaData, "percentVar"))
+
+# Make a PCA plot using shapes and colours
+ggplot(pcaData, aes(x = PC1, y = PC2, color = samples, shape = condition)) +
+  geom_point(size =3) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  coord_fixed() +
+  ggtitle("PCA with rlog data")
+
+# RNA counts, generally, are never normally distributed    
+ggplot(count_data) +
+  geom_histogram(aes(x = IVF0003), stat = "bin", bins = 200) +
+  xlab("Raw expression counts") +
+  ylab("Number of genes")
+                                 
+# GLM-PCA
+gpca <- glmpca(counts(ddsMat), L=2)
+gpca.dat <- gpca$factors
+gpca.dat$condition <- dds$condition
+gpca.dat$samples <- dds$samples
+
+# Plot GLM-PCA
+ggplot(gpca.dat, aes(x = dim1, y = dim2, color = samples, shape = condition)) +
+  geom_point(size =3) + coord_fixed() + ggtitle("glmpca - Generalized PCA")
+
+# Plot just the samples
+ggplot(gpca.dat, aes(x = dim1, y = dim2, color = samples)) +
+  geom_point(size =3) + coord_fixed() + ggtitle("glmpca - Generalized PCA")
+     
+# MSD plot
+# Use a matrix of distances
+sampleDists <- dist(t(assay(rld)))
+sampleDists
+
+mds <- as.data.frame(colData(rld))  %>%
+         cbind(cmdscale(sampleDistMatrix))
+         
+ggplot(mds, aes(x = `1`, y = `2`, color = samples, shape = condition)) +
+  geom_point(size = 3) + coord_fixed() + ggtitle("MDS with rld data")
+  
+### DE ANALYSIS ###
+
+res <- results(ddsMat)
+res
+mcols(res, use.names = TRUE)
+summary(res)
+
+res.05 <- results(dds, alpha = 0.05)
+table(res.05$padj < 0.05)
+                            
+# Plot counts per condition for top gene
+# Save to pdf
+topGene <- rownames(res)[which.min(res$padj)]
+plotCounts(dds, gene = topGene, intgroup=c("condition"))     
+
+pdf(file="draft_counts_plot.pdf", width=30)
+{par(lwd = 2)
+plotCounts(dds, gene = topGene, intgroup=c("condition"))
+}
+dev.off()
+
+
+
+                                 
+
+
+
+        
 
 
 
