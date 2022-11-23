@@ -17,19 +17,20 @@
 # 1 - Load librairies
 ##############################
 # library(tidyverse)
-# library(DESeq2)
 # library("AnnotationDbi")
 # library("org.Hs.eg.db")
 # library(geneplotter)
 # library(tidyverse)
-# library("pheatmap")
-# library("RColorBrewer")
 # library(ggbiplot)
 # library(gplots)
 
+library(DESeq2)  # For the DESeqDataSet
 library("dplyr")
 library("ggplot2")   # For variance distribution plots
 library("glmpca")  # For GLM-PCA
+library("pheatmap")  # For the heatmap
+library("RColorBrewer")  # For the heatmap colours
+library("PoiClaClu")
 
 ############################## 
 # 2 - Set working directory
@@ -181,7 +182,35 @@ ggplot(df, aes(x = x, y = y)) + geom_hex(bins = 80) +
   coord_fixed() + facet_grid( . ~ transformation)
   
 # From the graphs, it appears that rlog gives the best variance distribution
-# Use rlog for PCA
+# Use rlog for PCA later
+
+# Sample distance
+sampleDists <- dist(t(assay(rld)))
+sampleDists
+
+# Visualize the distances in a heatmap
+sampleDistMatrix <- as.matrix( sampleDists )
+rownames(sampleDistMatrix) <- paste( rld$condition, vsd$samples, sep = " - " )
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows = sampleDists,
+         clustering_distance_cols = sampleDists,
+         col = colors)
+         
+# Heatmap of sample-to-sample distances using the variance stabilising transformed values
+poisd <- PoissonDistance(t(counts(ddsMat)))
+
+# Poisson Distance
+# This measure of dissimilarity between counts also takes the inherent variance structure of counts 
+# into consideration when calculating the distances between samples
+samplePoisDistMatrix <- as.matrix( poisd$dd )
+rownames(samplePoisDistMatrix) <- paste( dds$condition, dds$samples, sep=" - " )
+colnames(samplePoisDistMatrix) <- NULL
+pheatmap(samplePoisDistMatrix,
+         clustering_distance_rows = poisd$dd,
+         clustering_distance_cols = poisd$dd,
+         col = colors)
 
 # Basic PCA
 plotPCA(rld)
@@ -189,7 +218,7 @@ plotPCA(rld)
 # Annotated PCA
 plotPCA(rld, intgroup = c("condition", "samples"))
 
-# Make a PCA table
+# Make a PCA table from the rld data
 pcaData <- plotPCA(rld, intgroup = c("condition", "samples"), returnData = TRUE)
 pcaData
 
@@ -255,6 +284,16 @@ plotCounts(dds, gene = topGene, intgroup=c("condition"))
 }
 dev.off()
 
+# Volcano plot
+# https://lashlock.github.io/compbio/R_presentation.html
+# Reset par
+par(mfrow=c(1,1))
+# Make a basic volcano plot
+with(res, plot(log2FoldChange, -log10(pvalue), pch=20, main="Volcano plot", xlim=c(-3,3)))
+
+# Add coloured points: blue if padj<0.01, red if log2FC>1 and padj<0.05)
+with(subset(res, padj<.01 ), points(log2FoldChange, -log10(pvalue), pch=20, col="blue"))
+with(subset(res, padj<.01 & abs(log2FoldChange)>2), points(log2FoldChange, -log10(pvalue), pch=20, col="red"))
 
 
                                  
