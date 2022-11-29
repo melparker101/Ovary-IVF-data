@@ -55,8 +55,8 @@ out_norm_counts <- "normalized_counts.txt"
 count_data <- read.delim(in_counts_file, header = T, sep="\t", row.names = 1,stringsAsFactors=FALSE)
 pheno_data <- read.csv(in_phenotype_file)
 
-samples <- []
-condition <- []
+samples <- c()
+condition <- c()
 
 # Trim column names to match the IDs in the phenotype data
 samples <- colnames(count_data)
