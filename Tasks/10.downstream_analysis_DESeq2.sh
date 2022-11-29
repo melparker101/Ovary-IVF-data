@@ -78,8 +78,21 @@ pheno_data[,c("ID","CaseControl","ReasonForIVF")]
 # Group male factor together
 pheno_data$ReasonForIVF[grep("Male|Sperm",pheno_data$ReasonForIVF)]<-"Male Factor"
 
-condition <- pheno_data$ReasonForIVF
-coldata <- as.data.frame(cbind(samples,condition))
+library(tidyveres) 
+IVF_reason <- pheno_data$ReasonForIVF
+sample_type <- pheno_data$sample
+age <- pheno_data$SurgAge
+PCOS <- pheno_data$CaseControl
+cycle_day <- pheno_data$CycleDay
+folicles_18mm <- pheno_data$No.of.follicles..18mm
+antral_folicles <- pheno_data$Antral.Follicles
+AHM <- pheno_data$AMH.levels
+BMI <- pheno_data$BMI
+BMI <- str_remove(BMI, "BMI ")
+ICSI_IVF <- pheno$ICSI.IVF
+
+################# change condition to IVF_reason
+coldata <- as.data.frame(cbind(samples,IVF_reason))
 
 # Create a matrix
 count_mat <- as.matrix(count_data)
