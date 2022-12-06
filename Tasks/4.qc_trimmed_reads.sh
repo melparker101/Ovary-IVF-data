@@ -8,7 +8,7 @@
 SECONDS=0
 
 # Specify a job name
-#$ -N qc_trim_adap
+#$ -N qc_trimmed_reads
 
 # Project name and target queue choose short or long
 #$ -P lindgren.prjc
@@ -32,19 +32,25 @@ SECONDS=0
 #$ -pe shmem 4
 #$ -t 1-15
 
-fastq=trimmed_reads
+IN=trimmed_reads
 OUT=qc_trimmed_results
 
-# merge index is a file with list of 8 digit numbers (part of the file name)
-# this means input file is the task_id'th line of that list
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
+# Merge index is a file with list of 8 digit numbers (part of the file name)
+# This means input file is the task_id'th line of that list
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
+
 
 module load FastQC/0.11.9-Java-11
 
+
 echo $INPUT_FILE
-fastqc $fastq/"$INPUT_FILE"_R1_001_trimmed_U.fastq.gz -o $OUT
-fastqc $fastq/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz -o $OUT
-fastqc $fastq/"$INPUT_FILE"_R2_001_trimmed_U.fastq.gz -o $OUT
-fastqc $fastq/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz -o $OUT
+fastqc $IN/"$INPUT_FILE"_R1_001_trimmed_U.fastq.gz -o $OUT
+fastqc $IN/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz -o $OUT
+fastqc $IN/"$INPUT_FILE"_R2_001_trimmed_U.fastq.gz -o $OUT
+fastqc $IN/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz -o $OUT
+
 
 echo "QC finished."
+
+
+# End of script job
