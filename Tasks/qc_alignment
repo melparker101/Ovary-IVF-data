@@ -1,0 +1,178 @@
+#############################################################
+## Alignment QC
+## melodyjparker14@gmail.com - Dec 22
+## This code performs quality control checks on aligned RNA-seq data (BAM files) from in-house IVF ovary samples.
+## Tutorial followed:
+## https://rnabio.org/module-02-alignment/0002/06/01/Alignment_QC/
+#############################################################
+
+###################################
+# 0 - WORKFLOW
+###################################
+# - Samtools
+# - FastQC
+# - Picard
+# - RSeQC
+# - MultiQC
+
+###################################
+# 1 - LOAD MODULES
+###################################
+source $HOME/.bashrc
+
+# conda create -n ucsc
+conda activate ucsc
+# conda install -c bioconda ucsc-gtftogenepred
+# conda install -c bioconda ucsc-genepredtobed
+
+echo "conda ucasc env activated."
+
+module load RSeQC/3.0.0-foss-2018b-Python-3.6.6
+module load samtools/1.8-gcc5.4.0  # for indexing bam files
+module load BEDOPS/2.4.35-foss-2018b
+module load picard/2.23.0-Java-11
+module load MultiQC/1.7-foss-2018b-Python-3.6.6
+
+echo "modules loaded"
+###################################
+# 2 - SETUP
+###################################
+# Set wd
+# mkdir sortedByCoord
+# cp *sortedByCoord.out.bam sortedByCoord/
+cd sortedByCoord
+
+# source $HOME/.bashrc
+
+<<comment
+# Copy gencode reference genome folder across
+# $ref_gc contains the latest gencode reference fa file and annotations gtf file
+cp -R $ref_gc ref
+
+# Index BAM files
+# Consider using GNU parallel
+# module load parallel
+# parallel  samtools index ::: *.bam
+# The 'parallel' module on the cluster clashes with the GCC version of other modules
+# Use loop
+for f in *.bam; do samtools index "$f" "$f".bai ; done
+echo "BAM file indexing complete."
+
+###################################
+# 2 - SAMTOOLS
+###################################
+mkdir flagstat
+for f in *.bam; do samtools flagstat "$f" > flagstat/"$f".flagstat; done
+echo "Flagstats created."
+
+# Alternatively:
+# find *sortedByCoord*.bam -exec echo samtools flagstat {} \> flagstat/{}.flagstat \; | sh
+
+###################################
+# 3 - FASTQC
+###################################
+module load fastqc
+mkdir fastqc
+fastqc *sortedByCoord.out.bam -o fastqc
+echo "FastQC complete."
+
+###################################
+# 4 - PICARD
+###################################
+cd ref
+
+# Create a dictionary from the reference fasta file
+java -jar $EBROOTPICARD/picard.jar CreateSequenceDictionary R=GRCh38.primary_assembly.genome.fa O=GRCh38.primary_assembly.genome.dict
+
+# Create a bed file of the location of ribosomal sequences in out reference
+grep --color=none -i -P "rrna" gencode.v42.primary_assembly.annotation.gtf > ref_ribosome.gtf
+gff2bed < ref_ribosome.gtf > ref_ribosome.bed
+
+# Create an interval list file for the ribosomal sequence location in the reference
+java -jar $EBROOTPICARD/picard.jar BedToIntervalList I=ref_ribosome.bed O=ref_ribosome.interval_list SD=GRCh38.primary_assembly.genome.dict
+
+# Create a genePred file for the reference transcriptome
+gtfToGenePred -genePredExt gencode.v42.primary_assembly.annotation.gtf gencode.v42.primary_assembly.ref_flat.txt
+
+# Reformat this genePred file
+cat gencode.v42.primary_assembly.ref_flat.txt | awk '{print $12"\t"$0}' | cut -d$'\t' -f1-11 > tmp.txt
+mv tmp.txt gencode.v42.primary_assembly.ref_flat.txt
+
+cd ..
+mkdir picard
+find *sortedByCoord.out.bam -exec echo java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I={} O=picard/{}.RNA_Metrics REF_FLAT=ref/gencode.v42.primary_assembly.ref_flat.txt STRAND=SECOND_READ_TRANSCRIPTION_STRAND RIBOSOMAL_INTERVALS=ref/ref_ribosome.interval_list \; | sh
+# This step takes a while---run this in parallel too if possible
+
+echo "Picard checks complete."
+
+comment
+
+###################################
+# 5 - RSEQC
+###################################
+# conda create -n ucsc
+# conda activate ucsc
+# conda install -c bioconda ucsc-gtftogenepred
+# conda install -c bioconda ucsc-genepredtobed
+# module load RSeQC/3.0.0-foss-2018b-Python-3.6.6
+# module load samtools/1.8-gcc5.4.0  # for indexing bam files
+# module load BEDOPS/2.4.35-foss-2018b
+# module load picard/2.23.0-Java-11
+
+cd ref
+
+echo $PWD
+
+# Convert Gtf to genePred
+# gtfToGenePred gencode.v42.primary_assembly.annotation.gtf gencode.v42.primary_assembly.genePred
+
+# Convert genPred to bed12
+# genePredToBed gencode.v42.primary_assembly.genePred gencode.v42.primary_assembly.bed12
+
+cd ..
+mkdir rseqc
+
+# This step takes a while
+bam_files=$(ls *bam | paste -sd "," -)
+geneBody_coverage.py -i $bam_files -r ref/gencode.v42.primary_assembly.bed12 -o rseqc
+
+echo "gene converage done"
+
+# See if we can run these in parallel too
+find *.bam -exec echo inner_distance.py -i {} -r ref/gencode.v42.primary_assembly.bed12 -o rseqc/{} \; | sh
+
+echo "inner distance done"
+
+find *.bam -exec echo junction_annotation.py -i {} -r ref/gencode.v42.primary_assembly.bed12 -o rseqc/{} \; | sh
+
+echo "junction annotation done"
+
+find *.bam -exec echo junction_saturation.py -i {} -r ref/gencode.v42.primary_assembly.bed12 -o rseqc/{} \; | sh
+
+echo "junction saturation done"
+
+find *.bam -exec echo read_distribution.py  -i {} -r ref/gencode.v42.primary_assembly.bed12 \> rseqc/{}.read_dist.txt \; | sh
+
+echo "read dist done"
+
+find *.bam -exec echo RNA_fragment_size.py -i {} -r ref/gencode.v42.primary_assembly.bed12 \> rseqc/{}.frag_size.txt \; | sh
+
+echo "RNA frag size done"
+
+find *.bam -exec echo bam_stat.py -i {} \> {}.bam_stat.txt \; | sh
+
+# rm -f log.txt
+
+echo "RSeQC checks complete."
+
+###################################
+# 6 - MULTIQC
+###################################
+module purge
+module load multiqc
+cd ..
+python3 -m multiqc ./
+
+"MultiQC checks complete."
+
+conda deactivate
