@@ -6,7 +6,7 @@
 # ----------------------------------------------------------
 
 # Specify a job name
-#$ -N merge RNA reads
+#$ -N merge_RNA_reads
 
 # Project name and target queue choose short or long
 #$ -P lindgren.prjc
