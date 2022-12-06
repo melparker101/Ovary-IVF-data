@@ -71,7 +71,7 @@ $OUT/"$INPUT_FILE"_R1_001_trimmed_U.fastq.gz \
 $OUT/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 $OUT/"$INPUT_FILE"_R2_001_trimmed_U.fastq.gz \
 ILLUMINACLIP:$EBROOTTRIMMOMATIC/adapters/"$ADAPTER":2:30:10 \
-MINLEN:20
+# MINLEN:20
 
 
 echo "Reads trimmed: adapter removed."
