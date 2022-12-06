@@ -31,18 +31,19 @@ library("glmpca")  # For GLM-PCA
 library("pheatmap")  # For the heatmap
 library("RColorBrewer")  # For the heatmap colours
 library("PoiClaClu")
+library(tidyverse) 
 
 ############################## 
 # 2 - Set working directory
 ##############################
-setwd("ivf_cumulus")
+# setwd("ivf_cumulus")
 dir()
 
 ############################## 
 # 3 - Source file
 ##############################
 # input_file <- "full.count.genes.matrix.txt"
-in_counts_file <- "count_matrix2.txt"  # Counts should NOT be normalised
+in_counts_file <- "count_matrix.txt"  # Counts should NOT be normalised
 in_phenotype_file <- "IVF_phenotypic_data_repox_15nov2022_trimmed.csv"
 out_norm_counts <- "normalized_counts.txt"
 
@@ -55,11 +56,13 @@ out_norm_counts <- "normalized_counts.txt"
 count_data <- read.delim(in_counts_file, header = T, sep="\t", row.names = 1,stringsAsFactors=FALSE)
 pheno_data <- read.csv(in_phenotype_file)
 
+
 samples <- c()
 condition <- c()
 
 # Trim column names to match the IDs in the phenotype data
 samples <- colnames(count_data)
+samples <- gsub("^.{0,5}", "", samples)  # Removes the first 5 chars
 samples <- gsub("\\..*","",samples)  # Removes the end after .
 samples <- gsub(".*_","",samples)  # Removed the start up to _
 colnames(count_data) <- samples
@@ -78,7 +81,7 @@ pheno_data[,c("ID","CaseControl","ReasonForIVF")]
 # Group male factor together
 pheno_data$ReasonForIVF[grep("Male|Sperm",pheno_data$ReasonForIVF)]<-"Male Factor"
 
-library(tidyveres) 
+
 IVF_reason <- pheno_data$ReasonForIVF
 sample_type <- pheno_data$sample
 age <- pheno_data$SurgAge
@@ -107,12 +110,12 @@ countdata <- na.omit(count_mat)
 # Create a DESeqDataSet object
 ddsMat <- DESeqDataSetFromMatrix(countData = count_mat,
                                  colData = coldata,
-                                 design = ~condition)
+                                 design = ~IVF_reason)
                                  
 head(assay(ddsMat))  
 
 # View in the script editor
-View(counts(dds))
+View(counts(ddsMat))
 
 # Filter out empty rows
 # Strict filtering to increase power is automatically applied later
@@ -124,11 +127,12 @@ ddsMat <- ddsMat[keep,]
 # ddsMat <- ddsMat[keep,]
 
 # Add control features for estimating size factors
-ddsMat <- estimateSizeFactors(ddsMat, controlGenes=ctrlGenes)
+# ddsMat <- estimateSizeFactors(ddsMat, controlGenes=ctrlGenes)
+ddsMat <- estimateSizeFactors(ddsMat)
 ddsMat <- DESeq(ddsMat)
 
 # View normalisation factor applied and compare non-normalised data with normalised data
-sizeFactors(dds)
+sizeFactors(ddsMat)
 head(counts(ddsMat, normalized = F))
 head(counts(ddsMat, normalized = T))
 
@@ -203,7 +207,7 @@ sampleDists
 
 # Visualize the distances in a heatmap
 sampleDistMatrix <- as.matrix( sampleDists )
-rownames(sampleDistMatrix) <- paste( rld$condition, vsd$samples, sep = " - " )
+rownames(sampleDistMatrix) <- paste( rld$IVF_reason, rld$samples, sep = " - " )
 colnames(sampleDistMatrix) <- NULL
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
 pheatmap(sampleDistMatrix,
@@ -218,7 +222,7 @@ poisd <- PoissonDistance(t(counts(ddsMat)))
 # This measure of dissimilarity between counts also takes the inherent variance structure of counts 
 # into consideration when calculating the distances between samples
 samplePoisDistMatrix <- as.matrix( poisd$dd )
-rownames(samplePoisDistMatrix) <- paste( dds$condition, dds$samples, sep=" - " )
+rownames(samplePoisDistMatrix) <- paste( ddsMat$IVF_reason, ddsMat$samples, sep=" - " )
 colnames(samplePoisDistMatrix) <- NULL
 pheatmap(samplePoisDistMatrix,
          clustering_distance_rows = poisd$dd,
@@ -229,16 +233,16 @@ pheatmap(samplePoisDistMatrix,
 plotPCA(rld)
 
 # Annotated PCA
-plotPCA(rld, intgroup = c("condition", "samples"))
+plotPCA(rld, intgroup = c("IVF_reason", "samples"))
 
 # Make a PCA table from the rld data
-pcaData <- plotPCA(rld, intgroup = c("condition", "samples"), returnData = TRUE)
+pcaData <- plotPCA(rld, intgroup = c("IVF_reason", "samples"), returnData = TRUE)
 pcaData
 
 percentVar <- round(100 * attr(pcaData, "percentVar"))
 
 # Make a PCA plot using shapes and colours
-ggplot(pcaData, aes(x = PC1, y = PC2, color = samples, shape = condition)) +
+ggplot(pcaData, aes(x = PC1, y = PC2, color = samples, shape = IVF_reason)) +
   geom_point(size =3) +
   xlab(paste0("PC1: ", percentVar[1], "% variance")) +
   ylab(paste0("PC2: ", percentVar[2], "% variance")) +
@@ -258,7 +262,7 @@ gpca.dat$condition <- dds$condition
 gpca.dat$samples <- dds$samples
 
 # Plot GLM-PCA
-ggplot(gpca.dat, aes(x = dim1, y = dim2, color = samples, shape = condition)) +
+ggplot(gpca.dat, aes(x = dim1, y = dim2, color = samples, shape = IVF_reason)) +
   geom_point(size =3) + coord_fixed() + ggtitle("glmpca - Generalized PCA")
 
 # Plot just the samples
