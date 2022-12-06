@@ -8,7 +8,7 @@
 SECONDS=0
 
 # Specify a job name
-#$ -N qc_trim_adap
+#$ -N qc_raw_reads
 
 # Project name and target queue choose short or long
 #$ -P lindgren.prjc
@@ -31,18 +31,19 @@ SECONDS=0
 #   ramdisk
 #$ -pe shmem 4
 #$ -t 1-15
-
-fastq=raw_reads
+IN=raw_reads
 OUT=qc_raw_results
 
 # this means input file is the task_id'th line of that list
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
 
 module load FastQC/0.11.9-Java-11
 
+
 echo $INPUT_FILE
-fastqc $fastq/"$INPUT_FILE"_R1_001.fastq.gz -o $OUT
-fastqc $fastq/"$INPUT_FILE"_R2_001.fastq.gz -o $OUT
+fastqc $IN/"$INPUT_FILE"_R1_001.fastq.gz -o $OUT &
+fastqc $IN/"$INPUT_FILE"_R2_001.fastq.gz -o $OUT &
+wait
 
 
 echo "QC finished."
