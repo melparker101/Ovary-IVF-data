@@ -45,7 +45,7 @@ IN2=fastq_lane2
 OUT=merged_fastq
 
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/merge_index)
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
 
 
 cat $IN1/IVF_123456_"$INPUT_FILE"_1.fastq.gz $IN2/IVF_987654_"$INPUT_FILE"_1.fastq.gz > $OUT/"$INPUT_FILE"_R1.fastq.gz
