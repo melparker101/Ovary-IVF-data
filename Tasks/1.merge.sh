@@ -2,6 +2,7 @@
 
 # ----------------------------------------------------------
 # Script to create merge RNA reads
+# Based on a script from Saskia Reibe
 # melodyjparker14@gmail.com - Dec 22
 # ----------------------------------------------------------
 
