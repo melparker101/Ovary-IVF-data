@@ -30,7 +30,7 @@ library("ggplot2")   # For variance distribution plots
 library("glmpca")  # For GLM-PCA
 library("pheatmap")  # For the heatmap
 library("RColorBrewer")  # For the heatmap colours
-library("PoiClaClu")
+library("PoiClaClu")  # For poisson distance
 library(tidyverse) 
 
 ############################## 
