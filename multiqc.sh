@@ -48,7 +48,7 @@ qstat | grep "$FQCJOBID" > /dev/null; do sleep 60; echo "sleeping" ; done
 echo "FastQC complete."
 
 
-multiqc -p $IN -o $IN
+multiqc $IN -o $IN
 
 
 echo "Multiqc complete."
