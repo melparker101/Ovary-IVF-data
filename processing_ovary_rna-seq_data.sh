@@ -55,7 +55,7 @@ echo "Started at: "`date`
 echo "------------------------------------------------"
 
 ###################################
-# 2 - CONSTANTS
+# 2 - VARIABLES
 ###################################
 # Inputs:
 RAW_READS=$1  # Path of the directory containing the raw reads
@@ -93,8 +93,8 @@ module load STAR/2.7.9a-GCC-11.2.0
 ###################################
 # Capture output of a command
 # https://stackoverflow.com/questions/24283097/reusing-output-from-last-command-in-bash
-cap () { tee /tmp/capture.out; }
-ret () { cat /tmp/capture.out; }
+cap () { tee /tmp/capture.out; }  # Capture
+ret () { cat /tmp/capture.out; }  # Retrieve
 
 ###################################
 # 5 - START MAIN CODE
@@ -138,6 +138,7 @@ rsem-prepare-reference --gtf $REF_GENOME/$ref_genome_gtf \
                                      $REF_GENOME/$ref_genome_fasta $RSEM_REF/human
 
 
+<<comment
 # Perform QC on raw reads
 module purge
 module load FastQC/0.11.9-Java-11
@@ -148,6 +149,16 @@ mkdir -p $QC/qc_raw_results
 fastqc $RAW_READS/IVF*fastq.gz -o $QC/qc_raw_results
 multiqc $QC/qc_raw_results -o $QC/qc_raw_results
 echo "QC on raw reads is finished."
+comment
+
+# Run FastQC in parallel - send off a script
+qsub fastqc.sh $RAW_READS $TRIMMED_READS fastq | cap
+
+# Retrieve job ID
+fastqc_job_id=$(ret | awk -v RS='[0-9]+' '$0=RT' | head -1)  
+
+# Run Multiqc once FastQC has finished
+qsub multiqc.sh $QC/qc_raw_results fastqc_job_id
 
 
 # Trim reads
@@ -185,6 +196,8 @@ echo "QC on trimmed reads is finished."
 sh mapping_and_quantification.sh -raw $RAW_READS -trimmed $TRIMMED_READS -ref $REF_GENOME \
                                  -star_index $STAR_INDEX -star $STAR_OUT \
                                  -rsem_ref $RSEM_REF -rsem $RSEM_OUT
+                               
+# Perform Alignment QC on mapped reads
 
 # Generate a count matrix from the quantification results
 module purge
