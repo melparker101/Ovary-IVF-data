@@ -8,7 +8,7 @@
 SECONDS=0
 
 # Specify a job name
-#$ -N qc_raw_reads
+#$ -N fastqc
 
 # Project name and target queue choose short or long
 #$ -P lindgren.prjc
