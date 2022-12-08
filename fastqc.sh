@@ -22,7 +22,7 @@ SECONDS=0
 #$ -wd $IN 
 
 # Instead of separate output and error log files, send the error output to the regular output log file
-#$ -j
+#$ -j y
 
 # Log locations which are relative to the current
 # working directory of the submission
