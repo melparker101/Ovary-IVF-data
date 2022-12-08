@@ -1,5 +1,9 @@
 #!/bin/bash
 
+IN=$1  # Input dir
+OUT=$2  # Output dir
+FILE_TYPE=$3 # File type, e.g. fastq, bam
+
 # ----------------------------------------------------------
 # Script to run quality check on in-house IVF ovary data
 # melodyjparker14@gmail.com - Nov 22
@@ -15,7 +19,10 @@ SECONDS=0
 #$ -q short.qe
 
 # Run the job in the current working directory
-#$ -cwd -j y
+#$ -wd $IN 
+
+# Instead of separate output and error log files, send the error output to the regular output log file
+#$ -j
 
 # Log locations which are relative to the current
 # working directory of the submission
@@ -33,11 +40,7 @@ SECONDS=0
 #$ -t 1-15
 
 
-IN=$1  # Input dir
-OUT=$2  # Output dir
-FILE_TYPE=$3 # File type, e.g. fastq, bam
-
-
+# Create an index of file names
 for f in *$FILE_TYPE; do echo $f; done > file_index.txt
 
 
