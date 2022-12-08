@@ -7,16 +7,16 @@
 #############################################################
 
 ###################################
-# 0 - WORKFLOW
+# WORKFLOW
 ###################################
-# - Samtools
-# - FastQC
-# - Picard
-# - RSeQC
-# - MultiQC
+# 1. Samtools
+# 2. FastQC
+# 3. Picard
+# 4. RSeQC
+# 5. MultiQC
 
 ###################################
-# 1 - LOAD MODULES
+# LOAD MODULES
 ###################################
 source $HOME/.bashrc
 
@@ -35,7 +35,7 @@ module load MultiQC/1.7-foss-2018b-Python-3.6.6
 
 echo "modules loaded"
 ###################################
-# 2 - SETUP
+# SETUP
 ###################################
 # Set wd
 # mkdir sortedByCoord
@@ -59,7 +59,15 @@ for f in *.bam; do samtools index "$f" "$f".bai ; done
 echo "BAM file indexing complete."
 
 ###################################
-# 2 - SAMTOOLS
+# FUNCTIONS
+###################################
+# Capture output of a command
+# https://stackoverflow.com/questions/24283097/reusing-output-from-last-command-in-bash
+cap () { tee /tmp/capture.out; }  # Capture
+ret () { cat /tmp/capture.out; }  # Retrieve
+
+###################################
+# 1 - SAMTOOLS
 ###################################
 mkdir flagstat
 for f in *.bam; do samtools flagstat "$f" > flagstat/"$f".flagstat; done
@@ -69,16 +77,19 @@ echo "Flagstats created."
 # find *sortedByCoord*.bam -exec echo samtools flagstat {} \> flagstat/{}.flagstat \; | sh
 
 ###################################
-# 3 - FASTQC
+# 2 - FASTQC
 ###################################
-# Create an index text file
-for f in *bam; do echo $f; done > index.txt
+# Run FastQC in parallel - send off a script
+qsub fastqc.sh pwd fastqc bam | cap
 
-# Run FastQC on BAM files
-qsub fastqc.sh . fastqc
+# Retrieve job ID
+fastqc_job_id=$(ret | awk -v RS='[0-9]+' '$0=RT' | head -1)  
+
+# Run Multiqc once FastQC has finished
+qsub multiqc.sh fastqc fastqc_job_id
 
 ###################################
-# 4 - PICARD
+# 3 - PICARD
 ###################################
 cd ref
 
@@ -109,7 +120,7 @@ echo "Picard checks complete."
 comment
 
 ###################################
-# 5 - RSEQC
+# 4 - RSEQC
 ###################################
 # conda create -n ucsc
 # conda activate ucsc
@@ -167,7 +178,7 @@ find *.bam -exec echo bam_stat.py -i {} \> {}.bam_stat.txt \; | sh
 echo "RSeQC checks complete."
 
 ###################################
-# 6 - MULTIQC
+# 5 - MULTIQC
 ###################################
 module purge
 module load multiqc
