@@ -71,10 +71,11 @@ echo "Flagstats created."
 ###################################
 # 3 - FASTQC
 ###################################
-module load FastQC
-mkdir fastqc
-fastqc *sortedByCoord.out.bam -o fastqc
-echo "FastQC complete."
+# Create an index text file
+for f in *bam; do echo $f; done > index.txt
+
+# Run FastQC on BAM files
+qsub fastqc.sh . fastqc
 
 ###################################
 # 4 - PICARD
