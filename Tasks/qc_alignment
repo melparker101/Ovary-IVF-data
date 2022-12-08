@@ -71,7 +71,7 @@ echo "Flagstats created."
 ###################################
 # 3 - FASTQC
 ###################################
-module load fastqc
+module load FastQC
 mkdir fastqc
 fastqc *sortedByCoord.out.bam -o fastqc
 echo "FastQC complete."
