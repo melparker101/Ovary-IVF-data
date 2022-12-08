@@ -35,13 +35,13 @@ SECONDS=0
 
 IN=$1  # Input dir
 OUT=$2  # Output dir
+FILE_TYPE=$3 # File type, e.g. fastq, bam
 
 
-# For BAM files:
-# for f in *bam; do echo $f; done > index.txt
+for f in *$FILE_TYPE; do echo $f; done > file_index.txt
 
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/file_index.txt)
 
 
 module load FastQC/0.11.9-Java-11
