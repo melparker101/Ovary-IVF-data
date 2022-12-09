@@ -61,7 +61,7 @@ echo "BAM file indexing complete."
 ###################################
 # FUNCTIONS
 ###################################
-# Capture output of a command
+# Capture the output of a command
 # https://stackoverflow.com/questions/24283097/reusing-output-from-last-command-in-bash
 cap () { tee /tmp/capture.out; }  # Capture
 ret () { cat /tmp/capture.out; }  # Retrieve
@@ -158,10 +158,6 @@ echo "inner distance done"
 find *.bam -exec echo junction_annotation.py -i {} -r ref/gencode.v42.primary_assembly.bed12 -o rseqc/{} \; | sh
 
 echo "junction annotation done"
-
-find *.bam -exec echo junction_saturation.py -i {} -r ref/gencode.v42.primary_assembly.bed12 -o rseqc/{} \; | sh
-
-echo "junction saturation done"
 
 find *.bam -exec echo read_distribution.py  -i {} -r ref/gencode.v42.primary_assembly.bed12 \> rseqc/{}.read_dist.txt \; | sh
 
