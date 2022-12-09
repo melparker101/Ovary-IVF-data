@@ -40,6 +40,7 @@ echo "Username: "`whoami`
 echo "Started at: "`date`
 echo "------------------------------------------------"
 
+module load picard/2.23.0-Java-11
 
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/file_index.txt)
 OUT=picard
