@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# needs sorting out 
+
 #############################################################
 ## Processing Lindgren In-House Ovary Data
 ## melodyjparker14@gmail.com - Nov 22
@@ -169,7 +171,15 @@ then
 fi
 
 # Extract job name for trim_reads.sh job
-trim_job=$(ret | awk -v RS='[0-9]+' '$0=RT' | head -1)
+trim_job=$()
+
+# Get the job name
+# jobid=$(qsub -terse test.sh | sed 's/\..*//')
+
+
+# qsub -q short.qc -t 1-15 -N jobA jobA.sh
+
+# qsub -q short.qc -hold_jid_ad jobA jobB.sh
 
 echo $trim_job
 
