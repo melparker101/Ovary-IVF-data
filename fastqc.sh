@@ -1,9 +1,5 @@
 #!/bin/bash
 
-IN=$1  # Input dir
-OUT=$2  # Output dir
-FILE_TYPE=$3 # File type, e.g. fastq, bam
-
 # ----------------------------------------------------------
 # Script to run quality check on in-house IVF ovary data
 # melodyjparker14@gmail.com - Nov 22
@@ -38,6 +34,10 @@ SECONDS=0
 #   ramdisk
 #$ -pe shmem 4
 #$ -t 1-15
+
+IN=$1  # Input dir
+OUT=$2  # Output dir
+FILE_TYPE=$3 # File type, e.g. fastq, bam
 
 
 # Create an index of file names
