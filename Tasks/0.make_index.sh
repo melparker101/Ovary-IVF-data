@@ -45,5 +45,10 @@ fastq=raw_reads
 
 for f in $fastq/IVF*R1*; do g="${f%_R1*}" ; echo ${g##*/} >> $fastq/index.txt ; done
 
+<<comment
+if [ ! -f index.txt ]; then
+for f in IVF*sortedByCoord.out.bam; do echo ${f%Aligned*} >> index.txt ; done
+fi
+comment
 
 # End of job script
