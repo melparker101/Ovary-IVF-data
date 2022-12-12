@@ -40,17 +40,25 @@ echo "Username: "`whoami`
 echo "Started at: "`date`
 echo "------------------------------------------------"
 
-module load picard/2.23.0-Java-11
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/file_index.txt)
+if [ ! -f file_index.txt ]; then
+  for f in *.bam; do echo $f >> file_index.txt; done
+fi
+
+
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' file_index.txt)
 OUT=picard
+
 
 if [ ! -d "$OUT" ]; then
   mkdir -p $OUT
 fi
 
 
-java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I=$INPUT_FILE O=picard/"$INPUT_FILE".RNA_Metrics REF_FLAT=ref/gencode.v42.primary_assembly.ref_flat.txt STRAND=NONE RIBOSOMAL_INTERVALS=ref/ref_ribosome.interval_list
+module load picard/2.23.0-Java-11
+
+
+java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I=$INPUT_FILE O=$OUT/"$INPUT_FILE".RNA_Metrics REF_FLAT=ref/gencode.v42.primary_assembly.ref_flat.txt STRAND=NONE RIBOSOMAL_INTERVALS=ref/ref_ribosome.interval_list
 
 
 echo "CollectRnaSeqMetrics complete."
