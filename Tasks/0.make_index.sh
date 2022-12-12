@@ -47,7 +47,7 @@ for f in $fastq/IVF*R1*; do g="${f%_R1*}" ; echo ${g##*/} >> $fastq/index.txt ; 
 
 <<comment
 if [ ! -f index.txt ]; then
-for f in IVF*sortedByCoord.out.bam; do echo ${f%Aligned*} >> index.txt ; done
+for f in IVF*.fastq.gz; do echo ${f%_001*} >> index.txt ; done
 fi
 comment
 
