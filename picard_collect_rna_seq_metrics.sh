@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ----------------------------------------------------------
-# A script to run Picard's CollectRnaSeqMetrics for alignment QC.
+# A script to run Picard's CollectRnaSeqMetrics on BAM files for alignment QC.
 # melodyjparker14@gmail.com - Dec 22
 # ----------------------------------------------------------
 
@@ -48,6 +48,9 @@ fi
 
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' file_index.txt)
 OUT=picard
+REF=ref
+GENE_PRED=gencode.v42.primary_assembly.ref_flat.txt  # genePred
+RIB_INT=ref_ribosome.interval_list  # Interval list file for the ribosomal sequence location in the reference
 
 
 if [ ! -d "$OUT" ]; then
@@ -58,7 +61,7 @@ fi
 module load picard/2.23.0-Java-11
 
 
-java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I=$INPUT_FILE O=$OUT/"$INPUT_FILE".RNA_Metrics REF_FLAT=ref/gencode.v42.primary_assembly.ref_flat.txt STRAND=NONE RIBOSOMAL_INTERVALS=ref/ref_ribosome.interval_list
+java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I=$INPUT_FILE O=$OUT/"$INPUT_FILE".RNA_Metrics REF_FLAT=$REF/$GENE_PRED STRAND=NONE RIBOSOMAL_INTERVALS=$REF/$RIB_INT
 
 
 echo "CollectRnaSeqMetrics complete."
