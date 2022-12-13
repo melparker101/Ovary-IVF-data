@@ -44,7 +44,6 @@ cd sortedByCoord
 
 # source $HOME/.bashrc
 
-<<comment
 # Copy gencode reference genome folder across
 # $ref_gc contains the latest gencode reference fa file and annotations gtf file
 cp -R $ref_gc ref
@@ -66,18 +65,10 @@ echo "BAM file indexing complete."
 cap () { tee /tmp/capture.out; }  # Capture
 ret () { cat /tmp/capture.out; }  # Retrieve
 
-###################################
-# 1 - SAMTOOLS
-###################################
-mkdir flagstat
-for f in *.bam; do samtools flagstat "$f" > flagstat/"$f".flagstat; done
-echo "Flagstats created."
 
-# Alternatively:
-# find *sortedByCoord*.bam -exec echo samtools flagstat {} \> flagstat/{}.flagstat \; | sh
 
 ###################################
-# 2 - FASTQC
+# 1 - FASTQC
 ###################################
 # Run FastQC in parallel - send off a script
 qsub fastqc.sh pwd fastqc bam | cap
@@ -89,7 +80,7 @@ fastqc_job_id=$(ret | awk -v RS='[0-9]+' '$0=RT' | head -1)
 qsub multiqc.sh fastqc fastqc_job_id
 
 ###################################
-# 3 - PICARD
+# 2 - PICARD
 ###################################
 cd ref
 
@@ -112,12 +103,43 @@ mv tmp.txt gencode.v42.primary_assembly.ref_flat.txt
 
 cd ..
 mkdir picard
-find *sortedByCoord.out.bam -exec echo java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I={} O=picard/{}.RNA_Metrics REF_FLAT=ref/gencode.v42.primary_assembly.ref_flat.txt STRAND=SECOND_READ_TRANSCRIPTION_STRAND RIBOSOMAL_INTERVALS=ref/ref_ribosome.interval_list \; | sh
-# This step takes a while---run this in parallel too if possible
+# find *sortedByCoord.out.bam -exec echo java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I={} O=picard/{}.RNA_Metrics REF_FLAT=ref/gencode.v42.primary_assembly.ref_flat.txt STRAND=NONE RIBOSOMAL_INTERVALS=ref/ref_ribosome.interval_list \; | sh
+# This step takes a while---run this in parallel
+JOBIDA=$(qsub -terse picard_collect_rna_seq_metrics.sh)
+
+# Mark duplicates
+# for f in *bam; do java -jar $EBROOTPICARD/picard.jar MarkDuplicates INPUT="$f" OUTPUT=dedup/dedup_"$f" M=dedup/"${f%.sorted*}"_metrics.txt; done
+# This is also slow, so also run in parallel
+JOBIDB=$(qsub -terse picard_mark_duplicates.sh)
 
 echo "Picard checks complete."
 
-comment
+###################################
+# 2 - SAMTOOLS
+###################################
+# Perform flagstat on the bam files which have duplicates marked
+mkdir flagstat
+for f in dedup/*.bam; do samtools flagstat "$f" > flagstat/"$f".flagstat; done
+echo "Flagstats created."
+
+cd dedup
+ls *bam > index.txt
+cd ..
+
+# Make an index file
+(cd dedup && ls *bam) > dedup/index.txt
+
+# Loop through the above index file
+while IFS= read -r file
+do
+	samtools flagstat dedup/"$file" > flagstat/"${file%.out*}".flagstat
+done < "dedup/index.txt"
+
+
+while IFS= read -r file; do	samtools flagstat dedup/"$file" > flagstat/"${file%.out*}".flagstat; done < "dedup/index.txt"
+
+# Alternatively:
+# find *sortedByCoord*.bam -exec echo samtools flagstat {} \> flagstat/{}.flagstat \; | sh
 
 ###################################
 # 4 - RSEQC
@@ -133,7 +155,6 @@ comment
 
 cd ref
 
-echo $PWD
 
 # Convert Gtf to genePred
 # gtfToGenePred gencode.v42.primary_assembly.annotation.gtf gencode.v42.primary_assembly.genePred
@@ -145,42 +166,24 @@ cd ..
 mkdir rseqc
 
 # This step takes a while
-bam_files=$(ls *bam | paste -sd "," -)
-geneBody_coverage.py -i $bam_files -r ref/gencode.v42.primary_assembly.bed12 -o rseqc
+# Send a separate script off
+# bam_files=$(ls *bam | paste -sd "," -)
+# geneBody_coverage.py -i $bam_files -r ref/gencode.v42.primary_assembly.bed12 -o rseqc
 
-echo "gene converage done"
+echo "Gene converage script sent off"
 
-# See if we can run these in parallel too
-find *.bam -exec echo inner_distance.py -i {} -r ref/gencode.v42.primary_assembly.bed12 -o rseqc/{} \; | sh
+# Send off script for the rest of the RSeQC analysis
 
-echo "inner distance done"
 
-find *.bam -exec echo junction_annotation.py -i {} -r ref/gencode.v42.primary_assembly.bed12 -o rseqc/{} \; | sh
-
-echo "junction annotation done"
-
-find *.bam -exec echo read_distribution.py  -i {} -r ref/gencode.v42.primary_assembly.bed12 \> rseqc/{}.read_dist.txt \; | sh
-
-echo "read dist done"
-
-find *.bam -exec echo RNA_fragment_size.py -i {} -r ref/gencode.v42.primary_assembly.bed12 \> rseqc/{}.frag_size.txt \; | sh
-
-echo "RNA frag size done"
-
-find *.bam -exec echo bam_stat.py -i {} \> {}.bam_stat.txt \; | sh
-
-# rm -f log.txt
-
-echo "RSeQC checks complete."
 
 ###################################
 # 5 - MULTIQC
 ###################################
-module purge
-module load multiqc
-cd ..
-python3 -m multiqc ./
+# Wait until scripts are finished
+qsub -q short.qc -hold_jid $JOBA_ID,$JOBIDB multiqc.sh $PWD  # check if you can wait on more than one
 
-"MultiQC checks complete."
+
+
+"MultiQC script sent off."
 
 conda deactivate
