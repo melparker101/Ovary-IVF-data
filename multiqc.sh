@@ -33,25 +33,32 @@ SECONDS=0
 
 
 IN=$1  # Input dir
-FQCJOBID=$2  # FastQC job ID
+OUT=IN
+MODULES=$2
+# FQCJOBID=$2  # FastQC job ID
+# more efficient way so that we're not wasting nodes
 
 
-module load MultiQC  # Check version
+module load MultiQC/1.9-foss-2019b-Python-3.7.4
 
 if [ ! -d "$OUT" ]; then
   mkdir -p $OUT
 fi
 
-while
-qstat | grep "$FQCJOBID" > /dev/null; do sleep 60; echo "sleeping" ; done
+# while
+# qstat | grep "$FQCJOBID" > /dev/null; do sleep 60; echo "sleeping" ; done
 
 echo "FastQC complete."
 
 
-multiqc $IN -o $IN
+multiqc $IN -o $OUT -n multiqc_report_"$MODULES".html 
+
+# multiqc .
+# python3 -m multiqc ./  # Use a specific python interpreter
 
 
 echo "Multiqc complete."
 
+duration=$(( SECONDS - start ))
 
 # End of job script
