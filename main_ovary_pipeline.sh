@@ -210,8 +210,6 @@ sh mapping_and_quantification.sh -raw $RAW_READS -trimmed $TRIMMED_READS -ref $R
 # Perform Alignment QC on mapped reads
 
 # Generate a count matrix from the quantification results
-module purge
-module load RSEM/1.3.2-foss-2018b
 
 rsem-generate-data-matrix $RSEM_OUT/*.genes.results >> full.count.genes.matrix.txt
 
