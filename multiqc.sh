@@ -2,6 +2,7 @@
 
 # ----------------------------------------------------------
 # Script to run multiqc directly after fastqc has finished running
+# The default creates a multiqc report in the pwd.
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
