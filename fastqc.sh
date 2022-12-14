@@ -56,7 +56,7 @@ fi
 echo $INPUT_FILE
 fastqc $IN/"$INPUT_FILE" -o $OUT &
 fastqc $IN/"$INPUT_FILE -o $OUT &
-wait
+wait  # FastQC is run in the background for both files
 
 echo "FastQC finished."
 
