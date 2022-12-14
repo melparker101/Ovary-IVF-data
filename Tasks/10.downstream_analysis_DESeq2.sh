@@ -46,22 +46,6 @@ in_phenotype_file <- "pheno_data_revised.csv"
 out_norm_counts <- "normalized_counts.txt"
 
 ##############################################
-# Functions
-##############################################
-# Save as png image 
-SaveAsPDF <- function(plot_name,plot) {
-png_name <- paste("plots/", plot_name, ".pdf", sep="")
-pdf(file=png_name,
-width=20)
-
-plot
-
-# Save the file
-dev.off()
-}
-
-
-##############################################
 # 1. Create DESeq Dataset Object
 ##############################################
 # Read in count data and phenotype data
