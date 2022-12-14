@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ----------------------------------------------------------
-# A script to run Picard's CollectRnaSeqMetrics on BAM files for alignment QC.
+# A script to run Picard's CollectRnaSeqMetrics on BAM files for alignment QC in parallel.
 # melodyjparker14@gmail.com - Dec 22
 # ----------------------------------------------------------
 
