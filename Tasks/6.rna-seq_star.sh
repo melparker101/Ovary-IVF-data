@@ -57,9 +57,9 @@ INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' /index.txt)
 
 
 STAR --runThreadN 6 \
---readFilesIn $IN/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz $IN/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
+--readFilesIn "$IN"/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz "$IN"/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 --readFilesCommand zcat \
---outFileNamePrefix $OUT/$INPUT_FILE \
+--outFileNamePrefix "$OUT"/"$INPUT_FILE"_ \
 --genomeDir $STAR_INDEX \
 --sjdbGTFfile $REF/gencode.v42.primary_assembly.annotation.gtf --outSJfilterReads Unique --sjdbOverhang 149 \
 --outFilterType BySJout --outFilterMultimapNmax 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.1 \
