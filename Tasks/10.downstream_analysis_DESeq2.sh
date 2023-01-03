@@ -18,9 +18,7 @@
 ##############################################
 # Load librairies
 ##############################################
-# library(tidyverse)
 # library("AnnotationDbi")
-# library(tidyverse)
 # library(ggbiplot)
 # library(gplots)
 
@@ -91,10 +89,6 @@ coldata$Antral.Follicles <- as.integer(coldata$Antral.Follicles)
 coldata$BMI <- as.integer(coldata$BMI)
 str(coldata)
 
-keep <- rowSums(counts(ddsMat)) > 0
-# View(counts(ddsMat[!keep,]))
-ddsMat <- ddsMat[keep,]
-
 # View just CaseControl, ReasonforIVF and Proposed_categories columns
 pheno_data[,c("ID","ReasonForIVF","Proposed_categories")]
 
@@ -143,7 +137,7 @@ head(counts(ddsMat, normalized = T))
 
 # Write normalised table to file
 normalized_counts <- counts(ddsMat, normalized=TRUE)
-write.table(normalized_counts, file=out_norm_counts, sep="\t", quote=F, col.names=NA)
+# write.table(normalized_counts, file=out_norm_counts, sep="\t", quote=F, col.names=NA)
 
 # This tells us if the rows contain all non-zero values
 GeneCounts <- counts(ddsMat)
@@ -246,6 +240,14 @@ pcaData <- plotPCA(rld, intgroup = cols, returnData = TRUE)
 pcaData
 percentVar <- round(100 * attr(pcaData, "percentVar"))
 
+# Make a basic PCA plot
+ggplot(pcaData, aes(x = PC1, y = PC2, color = Proposed_categories)) +
+  geom_point(size =3) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  coord_fixed() +
+  ggtitle("PCA with rlog data")
+
 # Make a PCA plot using shapes and colours
 ggplot(pcaData, aes(x = PC1, y = PC2, color = BMI, shape = Proposed_categories)) +
   geom_point(size =3) +
@@ -255,7 +257,7 @@ ggplot(pcaData, aes(x = PC1, y = PC2, color = BMI, shape = Proposed_categories))
   ggtitle("PCA with rlog data")
 
 # PCA of patient age
-ggplot(pcaData, aes(x = PC1, y = PC2, color = SurgAge)) +
+ggplot(pcaData, aes(x = PC1, y = PC2, color = SurgAge, shape = Proposed_categories)) +
   geom_point(size =3) +
   xlab(paste0("PC1: ", percentVar[1], "% variance")) +
   ylab(paste0("PC2: ", percentVar[2], "% variance")) +
@@ -270,14 +272,14 @@ ggplot(pcaData, aes(x = PC1, y = PC2, color = Antral.Follicles, shape = ICSI.IVF
   ggtitle("PCA with rlog data")
   
 PCA_AF_ICSI <- 
-ggplot(pcaData, aes(x = PC1, y = PC2, color = Antral.Follicles, shape = ICSI.IVF)) +
+ggplot(pcaData, aes(x = PC1, y = PC2, color = Antral.Follicles, shape = Proposed_categories)) +
   geom_point(size =3) +
   xlab(paste0("PC1: ", percentVar[1], "% variance")) +
   ylab(paste0("PC2: ", percentVar[2], "% variance")) +
   coord_fixed() +
   ggtitle("PCA with rlog data")
-  
-ggsave(filename="plots/PCA_AF_ICSI.pdf", plot=PCA_AF_ICSI, width=8, height=5, units="in")
+PCA_AF_ICSI  
+# ggsave(filename="plots/PCA_AF_ICSI.pdf", plot=PCA_AF_ICSI, width=8, height=5, units="in")
   
 # PCA of BMI
 ggplot(pcaData, aes(x = PC1, y = PC2, color = BMI)) +
@@ -286,7 +288,6 @@ ggplot(pcaData, aes(x = PC1, y = PC2, color = BMI)) +
   ylab(paste0("PC2: ", percentVar[2], "% variance")) +
   coord_fixed() +
   ggtitle("PCA for BMI with rlog data")
-
 
 # RNA counts, generally, are never normally distributed    
 ggplot(count_data) +
@@ -308,16 +309,20 @@ ggplot(gpca.dat, aes(x = dim1, y = dim2, color = samples, shape = IVF_reason)) +
 ggplot(gpca.dat, aes(x = dim1, y = dim2, color = samples)) +
   geom_point(size =3) + coord_fixed() + ggtitle("glmpca - Generalized PCA")
      
-# MSD plot
-# Use a matrix of distances
-sampleDists <- dist(t(assay(rld)))
-sampleDists
-
+# MSD plot (multidimensional scaling)
+# Function in base R
+# Similar to PCA
+# Useful when we only have a matrix of distances, but not a matrix of data
 mds <- as.data.frame(colData(rld))  %>%
          cbind(cmdscale(sampleDistMatrix))
-         
-ggplot(mds, aes(x = `1`, y = `2`, color = samples, shape = fert_cat)) +
-  geom_point(size = 3) + coord_fixed() + ggtitle("MDS with rld data")
+ggplot(mds, aes(x = `1`, y = `2`, color = Proposed_categories)) +
+  geom_point(size = 3) + coord_fixed() + ggtitle("MDS with rld data") 
+
+# MDS for poisson distances
+mdsPois <- as.data.frame(colData(ddsMat)) %>%
+   cbind(cmdscale(samplePoisDistMatrix))
+ggplot(mdsPois, aes(x = `1`, y = `2`, color = Proposed_categories)) +
+  geom_point(size = 3) + coord_fixed() + ggtitle("MDS with PoissonDistances")
 
 ##############################################
 # 3. Differential Expression Analysis
@@ -330,6 +335,10 @@ res <- results(ddsMat)
 res
 mcols(res, use.names = TRUE)
 summary(res)
+
+# Ignore unexplained for now because we need two categories
+# Maybe actually do test and control groups as male factor, other
+res2 <- results(ddsMat, contrast=c("Proposed_categories","female_factor","no_female_infertility"))
 
 res.05 <- results(dds, alpha = 0.05)
 table(res.05$padj < 0.05)
@@ -355,6 +364,8 @@ with(res, plot(log2FoldChange, -log10(pvalue), pch=20, main="Volcano plot", xlim
 # Add coloured points: blue if padj<0.01, red if log2FC>1 and padj<0.05)
 with(subset(res, padj<.01 ), points(log2FoldChange, -log10(pvalue), pch=20, col="blue"))
 with(subset(res, padj<.01 & abs(log2FoldChange)>2), points(log2FoldChange, -log10(pvalue), pch=20, col="red"))
+
+# MA plot
 
 
 
