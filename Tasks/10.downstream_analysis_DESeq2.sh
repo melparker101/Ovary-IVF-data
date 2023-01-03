@@ -336,23 +336,33 @@ res
 mcols(res, use.names = TRUE)
 summary(res)
 
-# Ignore unexplained for now because we need two categories
-# Maybe actually do test and control groups as male factor, other
-res2 <- results(ddsMat, contrast=c("Proposed_categories","female_factor","no_female_infertility"))
+# https://www.reddit.com/r/bioinformatics/comments/lokgag/deseq2_with_three_groups/
+# Then set the heathy controls as your reference:
 
-res.05 <- results(dds, alpha = 0.05)
-table(res.05$padj < 0.05)
+# relevel the factor "ddsMat$Proposed_categories" to specify the reference factor level as the control "no_female infertility"
+# ddsMat$Proposed_categories <- relevel(ddsMat$Proposed_categories, ref = "no_female_infertility")
+ddsMat <- DESeq(ddsMat)
+res_fem <- results(ddsMat, contrast=c("Proposed_categories","female_factor","no_female_infertility"))
+res_unex <-results(ddsMat, contrast=c("Proposed_categories","unexplained","no_female_infertility"))
+
+# res.05 <- results(dds, alpha = 0.05)
+# table(res.05$padj < 0.05)
                             
-# Plot counts per fert_cat for top gene
+# Plot counts per Proposed_categories for top gene
 # Save to pdf
 topGene <- rownames(res)[which.min(res$padj)]
+topGene <- rownames(res_fem)[which.min(res_fem$padj)]
+topGene <- rownames(res_unex)[which.min(res_unex$padj)]
 plotCounts(dds, gene = topGene, intgroup=c("fert_cat"))     
 
 pdf(file="draft_counts_plot.pdf", width=30)
 {par(lwd = 2)
-plotCounts(dds, gene = topGene, intgroup=c("fert_cat"))
+plotCounts(ddsMat, gene = topGene, intgroup=c("Proposed_categories"))
 }
 dev.off()
+
+counts(ddsMat)[topGene,]
+pheno_data[,c("ID","ReasonForIVF")]
 
 # Volcano plot
 # https://lashlock.github.io/compbio/R_presentation.html
