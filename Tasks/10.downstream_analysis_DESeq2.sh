@@ -323,6 +323,11 @@ mdsPois <- as.data.frame(colData(ddsMat)) %>%
    cbind(cmdscale(samplePoisDistMatrix))
 ggplot(mdsPois, aes(x = `1`, y = `2`, color = Proposed_categories)) +
   geom_point(size = 3) + coord_fixed() + ggtitle("MDS with PoissonDistances")
+  
+# Not sure what this is but it makes a nice box and whisker plot
+# Cook's distances are used to spot outliers
+par(mar=c(12,5,2,2))
+boxplot(log10(assays(ddsMat)[["cooks"]]), range=0, las=2)
 
 ##############################################
 # 3. Differential Expression Analysis
@@ -345,7 +350,7 @@ ddsMat <- DESeq(ddsMat)
 res_fem <- results(ddsMat, contrast=c("Proposed_categories","female_factor","no_female_infertility"))
 res_unex <-results(ddsMat, contrast=c("Proposed_categories","unexplained","no_female_infertility"))
 
-# res.05 <- results(dds, alpha = 0.05)
+# res.05 <- results(ddsMat, alpha = 0.05)
 # table(res.05$padj < 0.05)
                             
 # Plot counts per Proposed_categories for top gene
@@ -353,7 +358,7 @@ res_unex <-results(ddsMat, contrast=c("Proposed_categories","unexplained","no_fe
 topGene <- rownames(res)[which.min(res$padj)]
 topGene <- rownames(res_fem)[which.min(res_fem$padj)]
 topGene <- rownames(res_unex)[which.min(res_unex$padj)]
-plotCounts(dds, gene = topGene, intgroup=c("fert_cat"))     
+plotCounts(ddsMat, gene = topGene, intgroup=c("Proposed_categories"))     
 
 pdf(file="draft_counts_plot.pdf", width=30)
 {par(lwd = 2)
@@ -361,6 +366,52 @@ plotCounts(ddsMat, gene = topGene, intgroup=c("Proposed_categories"))
 }
 dev.off()
 
+genes <- "STAR, CYP11A1, CYP17A1, AKR1C4, HSD3B, AKR1C3, HSD17B1, HSD17B2, HSD17B3, HSD17B6, HSD17B7, HSD17B8, HSD17B10, HSD17B11, HSD17B12, HSD17B14, AKR1C1, AKR1C2, SRD5A1, SRD5A2, SRD5A3, CYP19A1"
+genes <- strsplit(genes,split=", ",fixed=TRUE)[[1]]
+genes_ensembl <- AnnotationDbi::select(org.Hs.eg.db, # database
+                                     keys = genes,  # data to use for retrieval
+                                     columns = "ENSEMBL", # information to retreive for given data
+                                     keytype = "SYMBOL")
+# List genes that did not map				     
+genes_ensembl[!complete.cases(genes_ensembl), ][1]
+
+# Remove rows with NAs
+genes_ensembl <- na.omit(genes_ensembl)
+
+GeneOfInterest <- genes_ensembl$ENSEMBL[1]	
+plotCounts(ddsMat, gene = GeneOfInterest, intgroup=c("Proposed_categories"))  
+counts(ddsMat)[GeneOfInterest,]
+pheno_data[,c("ID","ReasonForIVF")]
+
+# Create directory for genes of interest plots
+if (dir.exists("GOI_plots")){
+	cat("This directory already exists.")
+} else if (!dir.exists("GOI_plots")){
+	dir.create("GOI_plots")
+	cat("Directory created.")
+}
+
+# Cannot use for symbol in genes_ensembl because it is not 1-1 mapping
+genes_ensembl <- genes_ensembl[!duplicated(genes_ensembl$SYMBOL), ]
+
+for (symbol in genes_ensembl$SYMBOL) {
+	GeneOfInterest <- genes_ensembl[genes_ensembl$SYMBOL == symbol,"ENSEMBL"]
+	plot_name <- paste("GOI_plots/",symbol,"_counts_plot",".pdf",sep="")
+	
+	pdf(file= plot_name, width=15)
+	{par(lwd = 2)
+	plotCounts(ddsMat, gene = GeneOfInterest, intgroup=c("Proposed_categories"))
+	}
+	dev.off()
+}
+
+# View a pdf
+# evince example_plot.pdf
+# counts(ddsMat,normalized = T)[GeneOfInterest,]
+
+# list.dirs(path = ".", full.names = FALSE, recursive = FALSE)
+
+				     
 counts(ddsMat)[topGene,]
 pheno_data[,c("ID","ReasonForIVF")]
 
@@ -376,6 +427,7 @@ with(subset(res, padj<.01 ), points(log2FoldChange, -log10(pvalue), pch=20, col=
 with(subset(res, padj<.01 & abs(log2FoldChange)>2), points(log2FoldChange, -log10(pvalue), pch=20, col="red"))
 
 # MA plot
+plotMA(res)
 
 
 
