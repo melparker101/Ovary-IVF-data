@@ -6,8 +6,6 @@
 ## http://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html
 #############################################################
 
-# Still need to update count matrix to include IVF0014!
-
 ##############################################
 # Workflow
 ##############################################
@@ -40,7 +38,7 @@ library("org.Hs.eg.db")  # For adding symbol, entrez, and uniprot columns
 # dir()
 
 in_counts_file <- "count_matrix.txt"  # Counts should NOT be normalised
-in_phenotype_file <- "pheno_data_revised.csv"
+in_phenotype_file <- "IVF_phenotypic_data_revised.csv"
 out_norm_counts <- "normalized_counts.txt"
 
 ##############################################
@@ -49,9 +47,6 @@ out_norm_counts <- "normalized_counts.txt"
 # Read in count data and phenotype data
 count_data <- read.delim(in_counts_file, header = T, sep="\t", row.names = 1,stringsAsFactors=FALSE)
 pheno_data <- read.csv(in_phenotype_file)
-
-# coldata: samples, fert_cat
-# also try coldata= samples,fert_cat,
 
 # Samples
 # Trim column names to match the IDs in the phenotype data
@@ -114,7 +109,7 @@ ddsMat <- DESeqDataSetFromMatrix(countData = count_mat,
 head(assay(ddsMat))  
 
 # View in the script editor
-View(counts(ddsMat))
+# View(counts(ddsMat))
 
 # Filter out empty rows
 # Strict filtering to increase power is automatically applied later
@@ -136,7 +131,7 @@ head(counts(ddsMat, normalized = F))
 head(counts(ddsMat, normalized = T))
 
 # Write normalised table to file
-normalized_counts <- counts(ddsMat, normalized=TRUE)
+normalised_counts <- counts(ddsMat, normalized=TRUE)
 # write.table(normalized_counts, file=out_norm_counts, sep="\t", quote=F, col.names=NA)
 
 # This tells us if the rows contain all non-zero values
@@ -230,7 +225,18 @@ pheatmap(samplePoisDistMatrix,
          clustering_distance_cols = poisd$dd,
          col = colors)
 
-# Annotated PCA
+### Annotated PCA plots ###
+
+# Make directory for PCA plots 
+if (dir.exists("PCA_plots")){
+	cat("This directory already exists.")
+} else if (!dir.exists("PCA_plots")){
+	dir.create("PCA_plots")
+	cat("Directory created.")
+}
+
+# Make a loop for all the plots...
+
 # I think intgroup just groups by colour and does not affect geometry of the pca plot
 # plotPCA(rld, intgroup = c("Proposed_categories"))
 # plotPCA(rld, intgroup = c("BMI"))
@@ -279,7 +285,7 @@ ggplot(pcaData, aes(x = PC1, y = PC2, color = Antral.Follicles, shape = Proposed
   coord_fixed() +
   ggtitle("PCA with rlog data")
 PCA_AF_ICSI  
-# ggsave(filename="plots/PCA_AF_ICSI.pdf", plot=PCA_AF_ICSI, width=8, height=5, units="in")
+# ggsave(filename="pca_plots/PCA_AF_ICSI.pdf", plot=PCA_AF_ICSI, width=8, height=5, units="in")
   
 # PCA of BMI
 ggplot(pcaData, aes(x = PC1, y = PC2, color = BMI)) +
@@ -344,8 +350,9 @@ summary(res)
 # https://www.reddit.com/r/bioinformatics/comments/lokgag/deseq2_with_three_groups/
 # Then set the heathy controls as your reference:
 
-# relevel the factor "ddsMat$Proposed_categories" to specify the reference factor level as the control "no_female infertility"
+# Relevel the factor "ddsMat$Proposed_categories" to specify the reference factor level as the control "no_female infertility" (not sure if this is necessary)
 # ddsMat$Proposed_categories <- relevel(ddsMat$Proposed_categories, ref = "no_female_infertility")
+
 ddsMat <- DESeq(ddsMat)
 res_fem <- results(ddsMat, contrast=c("Proposed_categories","female_factor","no_female_infertility"))
 res_unex <-results(ddsMat, contrast=c("Proposed_categories","unexplained","no_female_infertility"))
@@ -360,11 +367,22 @@ topGene <- rownames(res_fem)[which.min(res_fem$padj)]
 topGene <- rownames(res_unex)[which.min(res_unex$padj)]
 plotCounts(ddsMat, gene = topGene, intgroup=c("Proposed_categories"))     
 
-pdf(file="draft_counts_plot.pdf", width=30)
+# Add titles to these ##########
+
+# Plot counts of top differentially expressed gene 
+pdf(file="top_DEG_plot.pdf", width=30)
 {par(lwd = 2)
 plotCounts(ddsMat, gene = topGene, intgroup=c("Proposed_categories"))
 }
 dev.off()
+
+pdf(file="top_DEG_plot2.pdf", width=30)
+{par(lwd = 2)
+plotCounts(ddsMat, gene = topGene2, intgroup=c("Proposed_categories"))
+}
+dev.off()
+
+### Genes of interest ###
 
 genes <- "STAR, CYP11A1, CYP17A1, AKR1C4, HSD3B, AKR1C3, HSD17B1, HSD17B2, HSD17B3, HSD17B6, HSD17B7, HSD17B8, HSD17B10, HSD17B11, HSD17B12, HSD17B14, AKR1C1, AKR1C2, SRD5A1, SRD5A2, SRD5A3, CYP19A1"
 genes <- strsplit(genes,split=", ",fixed=TRUE)[[1]]
@@ -405,7 +423,7 @@ for (symbol in genes_ensembl$SYMBOL) {
 	dev.off()
 }
 
-# View a pdf
+# View a pdf in unix
 # evince example_plot.pdf
 # counts(ddsMat,normalized = T)[GeneOfInterest,]
 
@@ -428,6 +446,34 @@ with(subset(res, padj<.01 & abs(log2FoldChange)>2), points(log2FoldChange, -log1
 
 # MA plot
 plotMA(res)
+
+### Extract the top 50 expressed genes (after normalisation) ###
+
+# Make a dataframe containing the sum of all the counts for each gene
+total_exp <- as.data.frame(rowSums(normalized_counts))
+colnames(total_exp) <- "total_expression"
+
+# Map gene symbol, entrez and unipront
+total_exp$symbol = count_data$symbol[match(rownames(total_exp),rownames(count_data))]
+total_exp$entrez = count_data$entrez[match(rownames(total_exp),rownames(count_data))]
+total_exp$uniprot = count_data$uniprot[match(rownames(total_exp),rownames(count_data))]
+
+# Remove rows where the symbol is NA (some of these are mitrochondrial genes)
+x <- dim(total_exp)[1]
+total_exp <- total_exp[!is.na(total_exp$symbol),]
+y <- dim(total_exp)[1]
+z <- x-y
+string <- paste(z,"out of",x,"genes have been removed.")
+print(string)
+rm(x,y,string)
+
+# Extract top 50 genes
+top50_df <- total_exp[order(-total_exp$total_expression),][1:50,,drop=FALSE]
+top50genes <- top50_df$symbol
+top50genes
+
+# Write top 50 genes to text file
+capture.output(cat(top50genes), file = "top50genes.txt")
 
 
 
