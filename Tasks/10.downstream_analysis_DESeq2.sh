@@ -30,6 +30,7 @@ library("PoiClaClu")  # For poisson distance
 library(tidyverse) 
 library(geneplotter)  # For multiple plots on top of each other, multidensity()
 library("org.Hs.eg.db")  # For adding symbol, entrez, and uniprot columns
+library(stringr) # For trimming trailing white space in df
 
 ##############################################
 # Source files
@@ -67,14 +68,20 @@ all(colnames(count_data) == pheno_data$ID)
 # Get rid of columns with all NA
 # pheno_data[,colSums(is.na(pheno_data))<nrow(pheno_data)]
 
+# Only keep samples with cumulus cells
+# Maybe neaten this up later
+pheno_data <- pheno_data[pheno_data$Sample == "Follicular fluid and cumulus cells",]
+samples <- pheno_data$ID
+count_data <- count_data[, which((names(count_data) %in% samples)==TRUE)]
+
 # Decide which columns to use
-cols <- c("ID","SurgAge","CycleDay","No.of.follicles..18mm","Antral.Follicles","Weight..kg.","Height..cm.","ICSI.IVF","Proposed_categories","BMI")
+cols <- c("ID","Sample","SurgAge","CycleDay","AMH.levels","No.of.follicles..18mm","Antral.Follicles","Weight..kg.","Height..cm.","Proposed_categories","BMI")
 all(cols %in% colnames(pheno_data))
 coldata <- pheno_data[,cols]
 
 # Clean up coldata
 rownames(coldata) <- NULL
-coldata$ICSI.IVF <- str_trim(coldata$ICSI.IVF)
+# coldata$ICSI.IVF <- str_trim(coldata$ICSI.IVF)
 # class(BMI)
 str(coldata)
 
@@ -83,6 +90,9 @@ coldata$BMI <- str_remove(coldata$BMI, "BMI ")
 coldata$Antral.Follicles <- as.integer(coldata$Antral.Follicles)
 coldata$BMI <- as.integer(coldata$BMI)
 str(coldata)
+
+# Remove trailing white spaces across the whole of coldata
+coldata <- coldata %>% mutate(across(where(is.character), str_trim))
 
 # View just CaseControl, ReasonforIVF and Proposed_categories columns
 pheno_data[,c("ID","ReasonForIVF","Proposed_categories")]
@@ -239,7 +249,6 @@ if (dir.exists("PCA_plots")){
 
 # I think intgroup just groups by colour and does not affect geometry of the pca plot
 # plotPCA(rld, intgroup = c("Proposed_categories"))
-# plotPCA(rld, intgroup = c("BMI"))
 
 # Make a PCA table from the rld data using argument returnData
 pcaData <- plotPCA(rld, intgroup = cols, returnData = TRUE)
@@ -248,6 +257,14 @@ percentVar <- round(100 * attr(pcaData, "percentVar"))
 
 # Make a basic PCA plot
 ggplot(pcaData, aes(x = PC1, y = PC2, color = Proposed_categories)) +
+  geom_point(size =3) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  coord_fixed() +
+  ggtitle("PCA with rlog data")
+  
+# Type of sample
+ggplot(pcaData, aes(x = PC1, y = PC2, color = Sample)) +
   geom_point(size =3) +
   xlab(paste0("PC1: ", percentVar[1], "% variance")) +
   ylab(paste0("PC2: ", percentVar[2], "% variance")) +
