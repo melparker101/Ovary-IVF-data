@@ -373,16 +373,23 @@ summary(res)
 ddsMat <- DESeq(ddsMat)
 res_fem <- results(ddsMat, contrast=c("Proposed_categories","female_factor","no_female_infertility"))
 res_unex <-results(ddsMat, contrast=c("Proposed_categories","unexplained","no_female_infertility"))
+summary(res_fem)
+summary(res_unex)
 
 # res.05 <- results(ddsMat, alpha = 0.05)
 # table(res.05$padj < 0.05)
                             
 # Plot counts per Proposed_categories for top gene
 # Save to pdf
-topGene <- rownames(res)[which.min(res$padj)]
+
+# topGene <- rownames(res)[which.min(res$padj)]
 topGene <- rownames(res_fem)[which.min(res_fem$padj)]
 topGene <- rownames(res_unex)[which.min(res_unex$padj)]
-plotCounts(ddsMat, gene = topGene, intgroup=c("Proposed_categories"))     
+plotCounts(ddsMat, gene = topGene, intgroup=c("Proposed_categories"))
+counts(ddsMat,normalized = T)[topGene,]
+res_fem[topGene,]
+
+# Take out the ribosomal proteins or not ?
 
 # Add titles to these ##########
 
@@ -415,7 +422,7 @@ genes_ensembl <- na.omit(genes_ensembl)
 
 GeneOfInterest <- genes_ensembl$ENSEMBL[1]	
 plotCounts(ddsMat, gene = GeneOfInterest, intgroup=c("Proposed_categories"))  
-counts(ddsMat)[GeneOfInterest,]
+counts(ddsMat,normalized = T)[GeneOfInterest,]
 pheno_data[,c("ID","ReasonForIVF")]
 
 # Create directory for genes of interest plots
