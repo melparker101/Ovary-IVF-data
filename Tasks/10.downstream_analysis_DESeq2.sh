@@ -474,7 +474,7 @@ plotMA(res)
 ### Extract the top 50 expressed genes (after normalisation) ###
 
 # Make a dataframe containing the sum of all the counts for each gene
-total_exp <- as.data.frame(rowSums(normalized_counts))
+total_exp <- as.data.frame(rowSums(normalised_counts))
 colnames(total_exp) <- "total_expression"
 
 # Map gene symbol, entrez and unipront
