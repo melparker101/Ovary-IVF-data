@@ -367,8 +367,8 @@ summary(res)
 # https://www.reddit.com/r/bioinformatics/comments/lokgag/deseq2_with_three_groups/
 # Then set the heathy controls as your reference:
 
-# Relevel the factor "ddsMat$Proposed_categories" to specify the reference factor level as the control "no_female infertility" (not sure if this is necessary)
-# ddsMat$Proposed_categories <- relevel(ddsMat$Proposed_categories, ref = "no_female_infertility")
+# Relevel the factor "ddsMat$Proposed_categories" to specify the reference factor level as the control "no_female infertility"
+ddsMat$Proposed_categories <- relevel(ddsMat$Proposed_categories, ref = "no_female_infertility")
 
 ddsMat <- DESeq(ddsMat)
 res_fem <- results(ddsMat, contrast=c("Proposed_categories","female_factor","no_female_infertility"))
