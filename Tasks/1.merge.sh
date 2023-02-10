@@ -41,6 +41,7 @@ echo "Username: "`whoami`
 echo "Started at: "`date`
 echo "------------------------------------------------"
 
+IN=index_dir
 IN1=fastq_lane1
 IN2=fastq_lane2
 OUT=merged_fastq
