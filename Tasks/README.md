@@ -8,6 +8,12 @@ QC was performed on the data using FastQC, then MultiQC was run to visualise the
 - https://home.cc.umanitoba.ca/~psgendb/doc/fastqc.help
 #### 3. Trim files
 The adapters were removed using trimmomatic. No other trimming was necessary (https://sequencing.qcfail.com/articles/positional-sequence-bias-in-random-primed-libraries/).
+```
+IN=<raw_reads_dir>
+OUT=<trimmed_reads_dir>
+
+qsub trim_reads.sh $IN $OUT
+```
 #### 4. Perform QC on trimmed files
 Step 2 was repeated on the trimmed files to ensure the quality of these is sufficient.
 #### 5. Create an index file
