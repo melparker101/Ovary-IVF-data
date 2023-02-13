@@ -3,6 +3,8 @@
 # ----------------------------------------------------------
 # Script to run quality check on in-house IVF ovary data
 # melodyjparker14@gmail.com - Nov 22
+# Requires a file "index.txt" containing the indexes
+# Needs updating for slurm
 # ----------------------------------------------------------
 
 SECONDS=0
@@ -31,19 +33,19 @@ SECONDS=0
 #   ramdisk
 #$ -pe shmem 4
 #$ -t 1-15
+
 IN=raw_reads
 OUT=qc_raw_results
 
-# this means input file is the task_id'th line of that list
+# The input file is the name on the task_id'th line of the index list
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
 
 module load FastQC/0.11.9-Java-11
 
-
 echo $INPUT_FILE
+
 fastqc $IN/"$INPUT_FILE"_R1_001.fastq.gz -o $OUT &
 fastqc $IN/"$INPUT_FILE"_R2_001.fastq.gz -o $OUT &
 wait
-
 
 echo "QC finished."
