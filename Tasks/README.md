@@ -18,8 +18,8 @@ qsub trim_reads.sh $IN $OUT
 #### 4. Perform QC on trimmed files
 Step 2 was repeated on the trimmed files to ensure the quality of these is sufficient.
 #### 5. Create an index file for STAR aligner
-STAR was used to create an index file. The STAR manual recommends using the genome PRI assembly sequencing files. <br />
-https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf <br />
+STAR was used to create an index file. The [STAR manual](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) recommends using the genome PRI assembly sequencing files. <br />
+ <br />
 The current version (Nov-22) is Release 42 (GRCh38.p13). 
 ```
 wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/GRCh38.primary_assembly.genome.fa.gz
@@ -35,5 +35,5 @@ Gene and isoform expression of rna-seq was estimated using RSEM. Alternatives in
 #### 9. Create counts matrix
 RSEM was used to create a count matrix.
 #### 10. Perform downstream analysis
-DESeq2 was used to perform downstream analysis. The analysis included finding the most highly expressed genes, generating PCA plots and performing differential gene expression. <br />
-https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
+[DESeq2](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) was used to perform downstream analysis. The analysis included finding the most highly expressed genes, generating PCA plots and performing differential gene expression. <br />
+
