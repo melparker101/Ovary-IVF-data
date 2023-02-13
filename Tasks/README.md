@@ -6,7 +6,7 @@ A workflow for analysing ovary bulk RNA-seq data. The samples were from patients
 This was not necessary as the files were already merged.
 #### 2. Perform QC on raw reads
 QC was performed on the data using FastQC, then MultiQC was run to aggregate and visualise the results. All files failed on adapter content and also on per base sequence content.
-- https://home.cc.umanitoba.ca/~psgendb/doc/fastqc.help
+- [https://home.cc.umanitoba.ca/~psgendb/doc/fastqc.help]
 #### 3. Trim files
 The adapters were removed using trimmomatic. No other trimming was necessary (https://sequencing.qcfail.com/articles/positional-sequence-bias-in-random-primed-libraries/).
 ```
