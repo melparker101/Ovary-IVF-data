@@ -5,49 +5,37 @@
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
-# Specify a job name
-#$ -N create_rsem_ref
+#SBATCH -A lindgren.prj
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -J create_rsem_ref
+#SBATCH -o logs/output.out
+#SBATCH -e logs/error.err
 
-# Project name and target queue choose short or long
-#$ -P lindgren.prjc
-#$ -q short.qe 
+#  Parallel environment settings 
+#  For more information on these please see the documentation 
+#  Allowed parameters: 
+#   -c, --cpus-per-task 
+#   -N, --nodes 
+#   -n, --ntasks 
 
-# Run the job in the current working directory
-#$ -cwd -j y
-
-# Log locations which are relative to the current
-# working directory of the submission
-###$ -o logs/output.log
-###$ -e logs/error.log
-
-# Parallel environemnt settings
-#  For more information on these please see the wiki
-#  Allowed settings:
-#   shmem
-#   mpi
-#   node_mpi
-#   ramdisk
-#$ -pe shmem 4
-
-# Some useful data about the job to help with debugging
-echo "------------------------------------------------"
-echo "SGE Job ID: $JOB_ID"
-echo "SGE Task ID: $SGE_TASK_ID"
-echo "Run on host: "`hostname`
-echo "Operating system: "`uname -s`
-echo "Username: "`whoami`
-echo "Started at: "`date`
-echo "------------------------------------------------"
+echo "########################################################"
+echo "Slurm Job ID: $SLURM_JOB_ID" 
+echo "Run on host: "`hostname` 
+echo "Operating system: "`uname -s` 
+echo "Username: "`whoami` 
+echo "Started at: "`date` 
+echo "##########################################################"
 
 # Begin writing your script here
 module load RSEM/1.3.2-foss-2018b
 
-fastq=raw_reads
-STAR_INDEX=star_index
-STAR_PATH=software/STAR/2.7.9a-GCC-11.2.0/bin/STAR
-REF_GENOME=ref_genomes/homo_sapiens/gencode/GRCh38.p13
-IN=ivf_cumulus/trimmed_reads
-OUT=rsem_ref
+fastq=$1  # raw_reads
+STAR_INDEX=$2  # star_index
+STAR_PATH=$3  # software/STAR/2.7.9a-GCC-11.2.0/bin/STAR
+REF_GENOME=$4  # ref_genomes/homo_sapiens/gencode/GRCh38.p13
+IN=$5  # ivf_cumulus/trimmed_reads
+OUT=$6  # rsem_ref
 
 if [ ! -d $OUT ]; then
   mkdir -p $OUT
@@ -58,7 +46,8 @@ rsem-prepare-reference --gtf $REF_GENOME/gencode.v42.primary_assembly.annotation
    				     $REF_GENOME/GRCh38.primary_assembly.genome.fa $OUT/human                    
 
 
-# End of job script 
- 
- 
- 
+echo "###########################################################"
+echo "RSEM reference generated."
+echo "Finished at: "`date`
+echo "###########################################################"
+exit 0
