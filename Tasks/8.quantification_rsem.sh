@@ -1,46 +1,38 @@
 #!/bin/bash
 
 # ----------------------------------------------------------
-# Based on Saskia Reibe's code
-# Script to Perform gene and isoform quantification on
+# Script to perform gene and isoform quantification on
 # in-house IVF ovary RNA-seq data
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
-# Specify a job name
-#$ -N rna-seq_rsem
 
-# Project name and target queue choose short or long
-#$ -P lindgren.prjc
-#$ -q short.qe 
+#SBATCH -A lindgren.prj
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -J quantification_rsem
+#SBATCH -o logs/output.out
+#SBATCH -e logs/error.err
+#SBATCH -a 1-15
 
-# Run the job in the current working directory
-#$ -cwd -j y
+#  Parallel environment settings 
+#  For more information on these please see the documentation 
+#  Allowed parameters: 
+#   -c, --cpus-per-task 
+#   -N, --nodes 
+#   -n, --ntasks 
 
-# Log locations which are relative to the current
-# working directory of the submission
-###$ -o output.log
-###$ -e error.log
+echo "########################################################"
+echo "Slurm Job ID: $SLURM_JOB_ID" 
+echo "Run on host: "`hostname` 
+echo "Operating system: "`uname -s` 
+echo "Username: "`whoami` 
+echo "Started at: "`date` 
+echo "##########################################################"
 
-# Parallel environemnt settings
-#  For more information on these please see the wiki
-#  Allowed settings:
-#   shmem
-#   mpi
-#   node_mpi
-#   ramdisk
-#$ -pe shmem 4
-#$ -t 1-15
 
-# Some useful data about the job to help with debugging
-echo "------------------------------------------------"
-echo "SGE Job ID: $JOB_ID"
-echo "SGE Task ID: $SGE_TASK_ID"
-echo "Run on host: "`hostname`
-echo "Operating system: "`uname -s`
-echo "Username: "`whoami`
-echo "Started at: "`date`
-echo "------------------------------------------------"
+IN=$1  # trimmed_reads
+OUT=$2  # qc_trimmed_results
 
 # Begin writing your script here
 module purge
@@ -55,10 +47,16 @@ if [ ! -d "$OUT" ]; then
   mkdir -p $OUT
 fi
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $fastq/index.txt)
+# Merge index is a file with list of 8 digit numbers (part of the file name)
+# This means input file is the task_id'th line of that list
+INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' $IN/index.txt)
 
 
 rsem-calculate-expression --bam --paired-end -p 4 $IN/"$INPUT_FILE"_Aligned.toTranscriptome.out.bam $RSEM_REF/human $OUT/rsem_"$INPUT_FILE"
 
 
-# End of job script
+echo "###########################################################"
+echo "Genes and isoforms quantified."
+echo "Finished at: "`date`
+echo "###########################################################"
+exit 0
