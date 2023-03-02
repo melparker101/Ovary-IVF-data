@@ -2,6 +2,7 @@
 ## Downstream Analysis
 ## melodyjparker14@gmail.com - Nov 22
 ## Based off Saskia Reibe's code and following the DESeq2 Tutorial
+## This still needs tidying up
 ## https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
 ## http://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html
 #############################################################
@@ -498,20 +499,3 @@ top50genes
 
 # Write top 50 genes to text file
 capture.output(cat(top50genes), file = "top50genes.txt")
-
-
-
-
-                                 
-
-
-
-        
-
-
-
-
-
-
-
-
