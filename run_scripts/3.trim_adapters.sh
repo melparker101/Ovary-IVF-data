@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ----------------------------------------------------------
-# Script to trim adapters from in-house IVF ovary RNA-seq data 
+# Script to trim Nextera adapters from in-house IVF ovary RNA-seq data 
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
@@ -33,8 +33,8 @@ SECONDS=0
 #$ -t 1:15
 
 
-IN=raw_reads
-OUT=trimmed_reads
+IN=$1  # raw_reads
+OUT=$2  # trimmed_reads
 
 
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' IN/index.txt)
@@ -52,7 +52,7 @@ $OUT/"$INPUT_FILE"_R1_001_trimmed_U.fastq.gz \
 $OUT/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 $OUT/"$INPUT_FILE"_R2_001_trimmed_U.fastq.gz \
 ILLUMINACLIP:$EBROOTTRIMMOMATIC/adapters/NexteraPE-PE.fa:2:30:10 \
-# MINLEN:20
+MINLEN:20
 
 
 echo "Adapter removed."
