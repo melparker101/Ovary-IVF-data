@@ -1,44 +1,34 @@
 #!/bin/bash
 
-# ----------------------------------------------------------
-# Script to run quality check on in-house IVF ovary data
-# melodyjparker14@gmail.com - Nov 22
-# Requires a file "index.txt" containing the indexes
-# Needs updating for slurm
-# ----------------------------------------------------------
+#SBATCH -A lindgren.prj
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -J qc_raw_reads
+#SBATCH -o output.out
+#SBATCH -e error.err
+#SBATCH -a 1-15
 
-SECONDS=0
+#  Parallel environment settings 
+#  For more information on these please see the documentation 
+#  Allowed parameters: 
+#   -c, --cpus-per-task 
+#   -N, --nodes 
+#   -n, --ntasks 
 
-# Specify a job name
-#$ -N qc_raw_reads
+echo "########################################################"
+echo "Slurm Job ID: $SLURM_JOB_ID" 
+echo "Run on host: "`hostname` 
+echo "Operating system: "`uname -s` 
+echo "Username: "`whoami` 
+echo "Started at: "`date` 
+echo "##########################################################"
 
-# Project name and target queue choose short or long
-#$ -P lindgren.prjc
-#$ -q short.qe
-
-# Run the job in the current working directory
-#$ -cwd -j y
-
-# Log locations which are relative to the current
-# working directory of the submission
-#$ -o logs/
-#$ -e logs/
-
-# Parallel environemnt settings
-#  For more information on these please see the wiki
-#  Allowed settings:
-#   shmem
-#   mpi
-#   node_mpi
-#   ramdisk
-#$ -pe shmem 4
-#$ -t 1-15
 
 IN=$1  # raw_reads
 OUT=$2  # qc_raw_results
 
 # The input file is the name on the task_id'th line of the index list
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
+INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' $IN/index.txt)
 
 module load FastQC/0.11.9-Java-11
 
@@ -48,4 +38,8 @@ fastqc $IN/"$INPUT_FILE"_R1_001.fastq.gz -o $OUT &
 fastqc $IN/"$INPUT_FILE"_R2_001.fastq.gz -o $OUT &
 wait
 
-echo "QC finished."
+
+echo "###########################################################"
+echo "Finished at: "`date`
+echo "###########################################################"
+exit 0
