@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ----------------------------------------------------------
-# Script to run quality check on in-house IVF ovary data
+# Script to run quality check on in-house IVF ovary data (trimmed reads)
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
@@ -32,8 +32,8 @@ SECONDS=0
 #$ -pe shmem 4
 #$ -t 1-15
 
-IN=trimmed_reads
-OUT=qc_trimmed_results
+IN=$1  # trimmed_reads
+OUT=$2  # qc_trimmed_results
 
 # Merge index is a file with list of 8 digit numbers (part of the file name)
 # This means input file is the task_id'th line of that list
