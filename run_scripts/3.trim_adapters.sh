@@ -7,37 +7,37 @@
 
 SECONDS=0
 
-# Specify a job name
-#$ -N trim_adapters
+#!/bin/bash
 
-# Project name and target queue choose short or long
-#$ -P lindgren.prjc
-#$ -q short.qe
+#SBATCH -A lindgren.prj
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -J remove_adapters
+#SBATCH -o logs/output.out
+#SBATCH -e logs/error.err
+#SBATCH -a 1-15
 
-# Run the job in the current working directory
-#$ -cwd -j y
+#  Parallel environment settings 
+#  For more information on these please see the documentation 
+#  Allowed parameters: 
+#   -c, --cpus-per-task 
+#   -N, --nodes 
+#   -n, --ntasks 
 
-# Log locations which are relative to the current
-# working directory of the submission
-#$ -o logs/output.log
-#$ -e logs/error.log
-
-# Parallel environemnt settings
-#  For more information on these please see the wiki
-#  Allowed settings:
-#   shmem
-#   mpi
-#   node_mpi
-#   ramdisk
-#$ -pe shmem 4
-#$ -t 1:15
+echo "########################################################"
+echo "Slurm Job ID: $SLURM_JOB_ID" 
+echo "Run on host: "`hostname` 
+echo "Operating system: "`uname -s` 
+echo "Username: "`whoami` 
+echo "Started at: "`date` 
+echo "##########################################################"
 
 
 IN=$1  # raw_reads
 OUT=$2  # trimmed_reads
 
 
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' IN/index.txt)
+INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' IN/index.txt)
 
 
 module load Trimmomatic/0.39-Java-11
@@ -54,8 +54,10 @@ $OUT/"$INPUT_FILE"_R2_001_trimmed_U.fastq.gz \
 ILLUMINACLIP:$EBROOTTRIMMOMATIC/adapters/NexteraPE-PE.fa:2:30:10 \
 MINLEN:20
 
-
 echo "Adapter removed."
 
 
-# End of job script
+echo "###########################################################"
+echo "Finished at: "`date`
+echo "###########################################################"
+exit 0
