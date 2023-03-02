@@ -34,8 +34,8 @@ SECONDS=0
 #$ -pe shmem 4
 #$ -t 1-15
 
-IN=raw_reads
-OUT=qc_raw_results
+IN=$1  # raw_reads
+OUT=$2  # qc_raw_results
 
 # The input file is the name on the task_id'th line of the index list
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
