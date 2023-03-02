@@ -5,10 +5,6 @@
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
-SECONDS=0
-
-#!/bin/bash
-
 #SBATCH -A lindgren.prj
 #SBATCH -p short
 #SBATCH -c 4
@@ -36,12 +32,9 @@ echo "##########################################################"
 IN=$1  # raw_reads
 OUT=$2  # trimmed_reads
 
-
 INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' IN/index.txt)
 
-
 module load Trimmomatic/0.39-Java-11
-
 
 java -jar $EBROOTTRIMMOMATIC/trimmomatic-0.39.jar \
 PE \
@@ -54,10 +47,9 @@ $OUT/"$INPUT_FILE"_R2_001_trimmed_U.fastq.gz \
 ILLUMINACLIP:$EBROOTTRIMMOMATIC/adapters/NexteraPE-PE.fa:2:30:10 \
 MINLEN:20
 
-echo "Adapter removed."
-
 
 echo "###########################################################"
+echo "Adapter removed."
 echo "Finished at: "`date`
 echo "###########################################################"
 exit 0
