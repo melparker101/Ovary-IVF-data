@@ -5,31 +5,39 @@
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
-SECONDS=0
+#SBATCH -A lindgren.prj
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -J multiqc
+#SBATCH -o logs/output.out
+#SBATCH -e logs/error.err
 
-# Specify a job name
-#$ -N multiqc
+#  Parallel environment settings 
+#  For more information on these please see the documentation 
+#  Allowed parameters: 
+#   -c, --cpus-per-task 
+#   -N, --nodes 
+#   -n, --ntasks 
 
-# Project name and target queue choose short or long
-#$ -P lindgren.prjc
-#$ -q short.qe
+echo "########################################################"
+echo "Slurm Job ID: $SLURM_JOB_ID" 
+echo "Run on host: "`hostname` 
+echo "Operating system: "`uname -s` 
+echo "Username: "`whoami` 
+echo "Started at: "`date` 
+echo "##########################################################"
 
-# Run the job in the current working directory
-#$ -wd qc_trimmed_results
 
-# Log locations which are relative to the current
-# working directory of the submission
-#$ -o logs/
-#$ -e logs/
-
-# Parallel environemnt settings
-#  For more information on these please see the wiki
-#  Allowed settings:
-#   shmem
-#   mpi
-#   node_mpi
-#   ramdisk
-#$ -pe shmem 4
+IN=$1  # input_dir
+OUT=$1  # output_dir (same as input)
+REPORT_NAME=$2
 
 module load MultiQC/1.9-foss-2019b-Python-3.7.4
-multiqc .
+multiqc -i "$IN" -n "$REPORT_NAME" -o "$OUT"
+
+
+echo "###########################################################"
+echo "MultiQC finished."
+echo "Finished at: "`date`
+echo "###########################################################"
+exit 0
