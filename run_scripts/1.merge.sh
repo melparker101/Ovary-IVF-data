@@ -41,10 +41,10 @@ echo "Username: "`whoami`
 echo "Started at: "`date`
 echo "------------------------------------------------"
 
-IN=index_dir
-IN1=fastq_lane1
-IN2=fastq_lane2
-OUT=merged_fastq
+IN=$1  # index_dir
+IN1=$2  # fastq_lane1
+IN2=$3  # fastq_lane2
+OUT=$4  # merged_fastq
 
 
 INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
