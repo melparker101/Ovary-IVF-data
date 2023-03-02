@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# ----------------------------------------------------------
+# Script to create perform quality control checks on raw reads
+# melodyjparker14@gmail.com - Dec 22
+# ----------------------------------------------------------
+
 #SBATCH -A lindgren.prj
 #SBATCH -p short
 #SBATCH -c 4
