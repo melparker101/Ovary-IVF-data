@@ -7,9 +7,6 @@
 # melodyjparker14@gmail.com - Dec 22
 # ----------------------------------------------------------
 
-
-#!/bin/bash
-
 #SBATCH -A lindgren.prj
 #SBATCH -p short
 #SBATCH -c 4
