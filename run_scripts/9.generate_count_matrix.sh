@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ----------------------------------------------------------
-# Script to run quality check on in-house IVF ovary data (trimmed reads)
+# Script to merge RSEM results into a count matrix
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
