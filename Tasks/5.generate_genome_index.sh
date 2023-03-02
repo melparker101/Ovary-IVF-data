@@ -5,45 +5,34 @@
 # melodyjparker14@gmail.com - Nov 22
 # ----------------------------------------------------------
 
-# Specify a job name
-#$ -N rna-seq_star
+#SBATCH -A lindgren.prj
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -J star_index
+#SBATCH -o logs/output.out
+#SBATCH -e logs/error.err
 
-# Project name and target queue choose short or long
-#$ -P lindgren.prjc
-#$ -q short.qe 
+#  Parallel environment settings 
+#  For more information on these please see the documentation 
+#  Allowed parameters: 
+#   -c, --cpus-per-task 
+#   -N, --nodes 
+#   -n, --ntasks 
 
-# Run the job in the current working directory
-#$ -cwd -j y
+echo "########################################################"
+echo "Slurm Job ID: $SLURM_JOB_ID" 
+echo "Run on host: "`hostname` 
+echo "Operating system: "`uname -s` 
+echo "Username: "`whoami` 
+echo "Started at: "`date` 
+echo "##########################################################"
 
-# Log locations which are relative to the current
-# working directory of the submission
-###$ -o output.log
-###$ -e error.log
-
-# Parallel environemnt settings
-#  For more information on these please see the wiki
-#  Allowed settings:
-#   shmem
-#   mpi
-#   node_mpi
-#   ramdisk
-#$ -pe shmem 4
-
-# Some useful data about the job to help with debugging
-echo "------------------------------------------------"
-echo "SGE Job ID: $JOB_ID"
-echo "SGE Task ID: $SGE_TASK_ID"
-echo "Run on host: "`hostname`
-echo "Operating system: "`uname -s`
-echo "Username: "`whoami`
-echo "Started at: "`date`
-echo "------------------------------------------------"
 
 # Load modules
 module load STAR/2.7.9a-GCC-11.2.0
 
-REF_GENOME=ref_genomes/homo_sapiens/gencode/GRCh38.p13
-OUT=star_index
+REF_GENOME=$1  # ref_genomes/homo_sapiens/gencode/GRCh38.p13
+OUT=$2  # star_index
 
 if [ ! -d "$OUT" ]; then
   mkdir -p $OUT
@@ -57,4 +46,8 @@ STAR --runThreadN 6 \
 --sjdbOverhang 149  # read-length - 1
 
 
-# End of job script
+echo "###########################################################"
+echo "Star index generated."
+echo "Finished at: "`date`
+echo "###########################################################"
+exit 0
