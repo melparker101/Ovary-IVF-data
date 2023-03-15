@@ -9,21 +9,22 @@ cd Ovary-IVF-data
 
 ### 2. Download reference genome files
 ```
-mkdir <ref_genome_dir>
-cd <ref_genome_dir>
-
-# Download ensembl files
-wget https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
-wget https://ftp.ensembl.org/pub/release-108/gtf/homo_sapiens/Homo_sapiens.GRCh38.108.gtf.gz
+# Make a directory for the reference genome
+mkdir ref
 
 # Alternatively, download gencode files (this is recommended in the STAR manual)
-wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/GRCh38.primary_assembly.genome.fa.gz
-wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/gencode.v42.primary_assembly.annotation.gtf.gz
+wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/GRCh38.primary_assembly.genome.fa.gz -P ref
+wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/gencode.v42.primary_assembly.annotation.gtf.gz -P ref
 
 # Decompress files
-for f in *.gz ; do gunzip -c "$f" > "${f%.*}" ; done
+# Gunzip invokes gzip -d
+for f in ref/*.gz ; do gunzip -c "$f" > "${f%.*}" ; done
+```
 
-cd ..
+```
+# Alternatively, download ensembl files
+wget https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+wget https://ftp.ensembl.org/pub/release-108/gtf/homo_sapiens/Homo_sapiens.GRCh38.108.gtf.gz
 ```
 
 GMT files can be downloaded from:
