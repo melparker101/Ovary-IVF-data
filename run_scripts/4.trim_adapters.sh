@@ -31,10 +31,11 @@ echo "##########################################################"
 
 IN=$1  # raw_reads
 OUT=$2  # trimmed_reads
-
 INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' IN/index.txt)
 
 module load Trimmomatic/0.39-Java-11
+
+mkdir -p $OUT
 
 java -jar $EBROOTTRIMMOMATIC/trimmomatic-0.39.jar \
 PE \
