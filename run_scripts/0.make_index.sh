@@ -28,16 +28,15 @@ echo "Started at: "`date`
 echo "##########################################################"
 
 
-fastq=$1  # raw_reads
-
-
-for f in $fastq/IVF*R1*; do g="${f%_R1*}" ; echo ${g##*/} >> $fastq/index.txt ; done
+fastq=$1  # fastq files/reads 
 
 <<comment
-if [ ! -f index.txt ]; then
-for f in IVF*R1*.fastq.gz; do echo ${f%_001*} >> index.txt ; done
-fi
+for f in $fastq/IVF*R1*; do g="${f%_R1*}" ; echo ${g##*/} >> $fastq/index.txt ; done
 comment
+
+if [ ! -f index.txt ]; then
+for f in IVF*R1*.fastq.gz; do echo ${f%_R1_001*} >> index.txt ; done
+fi
 
 
 echo "###########################################################"
