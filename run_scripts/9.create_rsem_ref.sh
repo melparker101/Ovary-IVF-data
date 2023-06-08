@@ -31,9 +31,9 @@ echo "##########################################################"
 module load RSEM/1.3.2-foss-2018b
 
 # Define variables
-OUT=$6  # rsem_ref
-ref_genome_gtf=$  # gencode.v42.primary_assembly.annotation.gtf
-ref_genome_fasta  # GRCh38.primary_assembly.genome.fa
+OUT=$1  # rsem_ref
+ref_genome_gtf=$2  # gencode.v42.primary_assembly.annotation.gtf
+ref_genome_fasta=$3  # GRCh38.primary_assembly.genome.fa
 
 # Create output directory for RSEM reference
 mkdir -p $OUT
