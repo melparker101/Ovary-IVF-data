@@ -27,23 +27,20 @@ echo "Username: "`whoami`
 echo "Started at: "`date` 
 echo "##########################################################"
 
-# Begin writing your script here
+# Load modules
 module load RSEM/1.3.2-foss-2018b
 
-fastq=$1  # raw_reads
-STAR_INDEX=$2  # star_index
-STAR_PATH=$3  # software/STAR/2.7.9a-GCC-11.2.0/bin/STAR
-REF_GENOME=$4  # ref_genomes/homo_sapiens/gencode/GRCh38.p13
-IN=$5  # ivf_cumulus/trimmed_reads
+# Define variables
 OUT=$6  # rsem_ref
+ref_genome_gtf=$  # gencode.v42.primary_assembly.annotation.gtf
+ref_genome_fasta  # GRCh38.primary_assembly.genome.fa
 
-if [ ! -d $OUT ]; then
-  mkdir -p $OUT
-fi
+# Create output directory for RSEM reference
+mkdir -p $OUT
 
-
-rsem-prepare-reference --gtf $REF_GENOME/gencode.v42.primary_assembly.annotation.gtf \
-   				     $REF_GENOME/GRCh38.primary_assembly.genome.fa $OUT/human                    
+# Create RSEM reference
+rsem-prepare-reference --gtf $REF_GENOME/$ref_genome_gtf \
+   				     $REF_GENOME/$ref_genome_fasta $OUT/human                    
 
 
 echo "###########################################################"
