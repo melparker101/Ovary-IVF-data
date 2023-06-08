@@ -33,20 +33,22 @@ echo "##########################################################"
 # module use -a /apps/eb/dev/{skylake,ivybridge}/modules/all
 module load STAR/2.7.9a-GCC-11.2.0
 
-fastq=$1  # raw_reads
-STAR_INDEX=$2  # star_index
-REF=$3  # ref_genomes/homo_sapiens/gencode/GRCh38.p13
-IN=$4  # trimmed_reads
-OUT=$5  # star
+IN=$1  # trimmed_reads
+OUT=$2  # star
+STAR_INDEX=$3  # star_index
+REF_GENOME=$4  # ref_genomes/homo_sapiens/gencode/GRCh38.p13
+ref_genome_gtf=$5  # gencode.v42.primary_assembly.annotation.gtf
 
 INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' /index.txt)
+
+mkdir -p $OUT
 
 STAR --runThreadN 6 \
 --readFilesIn "$IN"/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz "$IN"/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 --readFilesCommand zcat \
 --outFileNamePrefix "$OUT"/"$INPUT_FILE"_ \
 --genomeDir $STAR_INDEX \
---sjdbGTFfile $REF/gencode.v42.primary_assembly.annotation.gtf --outSJfilterReads Unique --sjdbOverhang 149 \
+--sjdbGTFfile "$REF_GENOME"/"$ref_genome_gtf" --outSJfilterReads Unique --sjdbOverhang 149 \
 --outFilterType BySJout --outFilterMultimapNmax 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.1 \
 --alignSJoverhangMin 8 --alignSJDBoverhangMin 3 --alignIntronMin 20 --chimSegmentMin 20 \
 --outSAMtype BAM SortedByCoordinate --outSAMattributes All \
