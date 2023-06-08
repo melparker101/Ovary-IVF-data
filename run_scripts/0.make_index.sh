@@ -34,6 +34,7 @@ fastq=$1  # fastq files/reads
 for f in $fastq/IVF*R1*; do g="${f%_R1*}" ; echo ${g##*/} >> $fastq/index.txt ; done
 comment
 
+# Create an index file in the fastq directory containing a list of fastq sample names
 if [ ! -f index.txt ]; then
 for f in IVF*R1*.fastq.gz; do echo ${f%_R1_001*} >> index.txt ; done
 fi
