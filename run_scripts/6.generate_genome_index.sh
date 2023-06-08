@@ -34,10 +34,10 @@ module load STAR/2.7.9a-GCC-11.2.0
 REF_GENOME=$1  # ref_genomes/homo_sapiens/gencode/GRCh38.p13
 OUT=$2  # star_index
 
-if [ ! -d "$OUT" ]; then
-  mkdir -p $OUT
-fi
+# Make an output directory
+mkdir -p $OUT
 
+# Generate STAR index
 STAR --runThreadN 6 \
 --runMode genomeGenerate \
 --genomeDir $OUT \
