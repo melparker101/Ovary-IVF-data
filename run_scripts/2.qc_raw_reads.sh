@@ -28,17 +28,20 @@ echo "Username: "`whoami`
 echo "Started at: "`date` 
 echo "##########################################################"
 
-
+# Define variables
 IN=$1  # raw_reads
 OUT=$2  # qc_raw_results
+INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' $IN/index.txt)  # The input file is the name on the task_id'th line of the index list
 
-# The input file is the name on the task_id'th line of the index list
-INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' $IN/index.txt)
-
+# Load modules
 module load FastQC/0.11.9-Java-11
 
 echo $INPUT_FILE
 
+# Make output directory
+mkdir -p $OUT
+
+# Run fastqc quality control check on forward and reverse reads
 fastqc $IN/"$INPUT_FILE"_R1_001.fastq.gz -o $OUT &
 fastqc $IN/"$INPUT_FILE"_R2_001.fastq.gz -o $OUT &
 wait
