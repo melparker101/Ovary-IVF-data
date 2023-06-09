@@ -28,15 +28,22 @@ echo "Started at: "`date`
 echo "##########################################################"
 
 
-fastq=$1  # fastq files/reads 
-
-<<comment
-for f in $fastq/IVF*R1*; do g="${f%_R1*}" ; echo ${g##*/} >> $fastq/index.txt ; done
-comment
+# Define variables
+IN=$1  # fastq files/reads
+DATA_TYPE=$2  # fastq or bam
 
 # Create an index file in the fastq directory containing a list of fastq sample names
-if [ ! -f index.txt ]; then
-for f in IVF*R1*.fastq.gz; do echo ${f%_R1_001*} >> index.txt ; done
+if [[ $DATA_TYPE == fastq ]]; then
+
+  for f in "$IN"/IVF*R1*.fastq.gz; do echo $(basename${f%_R1_001*}) >> "$IN"/index.txt ; done
+  
+elif [[ $DATA_TYPE == bam ]]; then 
+
+  for f in "$IN"/IVF*.bam; do echo $(basename ${f%Aligned*}) >> "$IN"/index.txt ; done
+  
+else
+  echo "Data type not recognised. Please use \"fastq\" or \"bam\"."
+  
 fi
 
 
