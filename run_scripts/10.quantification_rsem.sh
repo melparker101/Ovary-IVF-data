@@ -32,22 +32,15 @@ echo "##########################################################"
 
 
 IN=$1  # trimmed_reads
-OUT=$2  # qc_trimmed_results
+OUT=rsem  # $2  # RSEM output directory
+RSEM_REF=rsem_ref
 
-# Begin writing your script here
+# Load modules
 module purge
 module load RSEM/1.3.2-foss-2018b
 
-fastq=raw_reads
-RSEM_REF=rsem_ref
-IN=star
-OUT=rsem
+mkdir -p $OUT
 
-if [ ! -d "$OUT" ]; then
-  mkdir -p $OUT
-fi
-
-# Merge index is a file with list of 8 digit numbers (part of the file name)
 # This means input file is the task_id'th line of that list
 INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' $IN/index.txt)
 
