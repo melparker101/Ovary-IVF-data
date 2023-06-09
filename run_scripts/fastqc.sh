@@ -55,6 +55,7 @@ elif [[ $DATA_TYPE == bam ]]; then
   fastqc $IN/"$INPUT_FILE"*.bam -o $OUT
   
 else 
+
   echo "Data type not recognised. Please use \"fastq\" or \"bam\" as an argument."
   
 fi
