@@ -29,17 +29,16 @@ echo "Started at: "`date`
 echo "##########################################################"
 
 
-if [ ! -f file_index.txt ]; then
-  for f in *.bam; do echo $f >> file_index.txt; done
-fi
+# Make a picard output directory
+mkdir -p 
 
-IN=$1  # input directory containing index file
-OUT=picard
-REF=$2  # ref
-GENE_PRED=$3  # gencode.v42.primary_assembly.ref_flat.txt  # genePred
-RIB_INT=$4  # ref_ribosome.interval_list  # interval list file for the ribosomal sequence location in the reference
+IN=$1  # directory containin the bam files
+OUT=$2
+REF=$3  # ref
+GENE_PRED=gencode.v42.primary_assembly.ref_flat.txt  # genePred
+RIB_INT=ref_ribosome.interval_list  # interval list file for the ribosomal sequence location in the reference
 
-INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' "$IN"/file_index.txt)
+INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' "$IN"/index.txt)
 
 if [ ! -d "$OUT" ]; then
   mkdir -p $OUT
@@ -47,7 +46,7 @@ fi
 
 module load picard/2.23.0-Java-11
 
-java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I=$INPUT_FILE O=$OUT/"$INPUT_FILE".RNA_Metrics REF_FLAT=$REF/$GENE_PRED STRAND=NONE RIBOSOMAL_INTERVALS=$REF/$RIB_INT
+java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I="$INPUT_FILE"*.bam O=$OUT/"$INPUT_FILE".RNA_Metrics REF_FLAT=$REF/$GENE_PRED STRAND=NONE RIBOSOMAL_INTERVALS=$REF/$RIB_INT
 
 
 echo "###########################################################"
