@@ -1,5 +1,5 @@
 # Process Ovary RNA-Seq data
-The main script is [IVF_data_processing.sh](https://github.com/melparker101/Ovary-IVF-data/blob/main/IVF_data_processing.sh). This runs the whole pipeline at once. However, it is recommended to run the run-scripts separately, assess the QC reports along the way and adjust accordingly.
+The main script is [IVF_data_processing.sh](https://github.com/melparker101/Ovary-IVF-data/blob/main/IVF_data_processing.sh). This runs the whole pipeline at once on the 15 samples. However, it is recommended to run the run-scripts separately, assess the QC reports along the way and adjust accordingly.
 
 ### 1. Clone the respository
 ```
