@@ -31,9 +31,9 @@ echo "Started at: "`date`
 echo "##########################################################"
 
 
-IN=$1  # trimmed_reads
-OUT=rsem  # $2  # RSEM output directory
-RSEM_REF=rsem_ref
+IN=$1  # star
+OUT=$2  # rsem
+RSEM_REF=$3  # rsem_ref
 
 # Load modules
 module purge
