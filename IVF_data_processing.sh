@@ -69,45 +69,54 @@ set -e
 # A. Make an index file
 # $1 = Raw reads dir.
 JOBA_ID=$(sbatch --parsable -p short make_index.sh $RAW_READS) 
+echo "Creating sample index for the raw reads"
 
 # B. Merge fastq files
 # This is not necessary for our samples, but add arguments if running
 JOBB_ID=$(sbatch --parsable -p short -d afterok:$JOBA_ID merge.sh)
+echo "Merging fastq files"
 
 # C. QC the raw reads
 # $1 = Raw reads dir.
 # $2 = QC raw reads results dir.
 # JOBC_ID=$(sbatch --parsable -p short -d afterok:$JOBB_ID qc_reads.sh $RAW_READS $QC)  # Use this line instead if the fastq merge step was used
 JOBC_ID=$(sbatch --parsable -p short -d afterok:$JOBA_ID qc_reads.sh $RAW_READS $QC/qc_raw_results)  # Use this line if fastq merging step was skipped
+echo "Running FastQC on raw reads"
 
 # D. Aggregate the QC results and visualise in a report
 # $1 = Input/output dir
 # $2 = Report name
 JOBD_ID=$(sbatch --parsable -p short -d afterok:$JOBC_ID multiqc.sh $QC/qc_raw_results "fastqc_reads")
+echo "Running MultiQC to aggregate QC results."
 
 # E. Trim off the adapters from the reads
 # $1 = Raw reads dir.
 # $2 = Trimmed reads dir.
 JOBE_IE=$(sbatch --parsable -p short -d afterok:$JOBD_ID trim_adapters.sh $RAW_READS $TRIMMED_READS)
+echo "Trimming adapters from raw reads."
 
 # F. Make an index file for the trimmed reads
 # $1 = Trimmed reads dir.
 JOBE_IF=$(sbatch --parsable -p short -d afterok:$JOBE_ID make_index.sh $TRIMMED_READS)
+echo "Creating a sample index for the trimmed reads."
 
 # G. QC the trimmed reads
 # $1 = Trimmed reads dir.
 # $2 = QC trimmed reads results dir.
 JOBG_ID=$(sbatch --parsable -p short -d afterok:$JOBF_ID qc_reads.sh $TRIMMED_READS $QC/qc_trimmed_results)  # Use this line if fastq merging step was skipped
+echo "Running FastQC on trimmed reads"
 
 # H. Aggregate the QC results and visualise in a report
 # $1 = Input/output dir
 # $2 = Report name
 JOBH_ID=$(sbatch --parsable -p short -d afterok:$JOBG_ID multiqc.sh $QC/qc_trimmed_results "fastqc_reads")
+echo "Running MultiQC to aggregate QC results."
 
 # I. Generate a genome index for STAR
 # $1 = Reference genome directory
 # $2 = STAR index directory # star_index
 JOBI_ID=$(sbatch --parsable -p short -d afterok:$JOBH_ID generate_genome_index.sh $REF_GENOME $STAR_INDEX)
+echo "Generating STAR genome index."
 
 # J. Align reads to reference genome using STAR
 # $1 = Trimmed reads dir.
@@ -116,10 +125,12 @@ JOBI_ID=$(sbatch --parsable -p short -d afterok:$JOBH_ID generate_genome_index.s
 # $4 = Reference genome dir
 # $5 = Reference genome annotations filename
 JOBJ_ID=$(sbatch --parsable -p short -d afterok:$JOBI_ID alignment_star.sh $TRIMMED_READS $STAR $STAR_INDEX $REF_GENOME $ref_genome_gtf)
+echo "Aligning reads to reference genome using STAR."
 
-# K. Perform AlignmentQC
+# K. Perform Alignment QC
 # This is annother nested script
 JOBK_ID=$(sbatch --parsable -p short -d afterok:$JOBJ_ID qc_alignment.sh)
+echo "Running alignment QC script."
 
 # L. Generate RSEM reference
 # $1 = RSEM reference
@@ -127,6 +138,12 @@ JOBK_ID=$(sbatch --parsable -p short -d afterok:$JOBJ_ID qc_alignment.sh)
 # $3 = Reference genome fasta file: GRCh38.primary_assembly.genome.fa
 # Do not wait for alignment QC to finish because it takes ages - start running asap
 JOBL_ID=$(sbatch --parsable -p short create_rsem_ref.sh $RSEM_REF $ref_genome_gtf $ref_genome_fasta)
+echo "Generating RSEM reference."
 
 # M. quantification_rsem.sh
 
+echo "Quantifying genes and isoforms using RSEM."
+
+# N. DESeq2
+
+echo "Running downstream analysis using DESeq2."
