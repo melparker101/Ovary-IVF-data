@@ -1,6 +1,6 @@
 ### These scripts are being altered to run with slurm, but have not yet been tested.
 
-### Pipeline overview
+## Pipeline overview
 1. Create index file for raw fastq file names: [make_index.sh](https://github.com/melparker101/Ovary-IVF-data/blob/main/run_scripts/make_index.sh)
 2. Merge fastq files: [merge.sh](https://github.com/melparker101/Ovary-IVF-data/blob/main/run_scripts/merge.sh)
 3. Perform quality control (QC) on raw reads: [qc_reads.sh](https://github.com/melparker101/Ovary-IVF-data/blob/main/run_scripts/qc_reads.sh)
