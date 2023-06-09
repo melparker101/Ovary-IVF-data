@@ -82,7 +82,7 @@ set -e
 ### A. Make an index file
 #
 # $1 = Raw reads dir.
-JOBA_ID=$(sbatch --parsable -p short run_scripts/make_index.sh $RAW_READS) 
+JOBA_ID=$(sbatch --parsable -p short run_scripts/make_index.sh $RAW_READS fastq) 
 echo "Creating sample index for the raw reads. Job ID: $JOBA_ID."
 
 
@@ -125,7 +125,7 @@ echo "Trimming adapters from raw reads. Job ID: $JOBE_ID."
 # Dependent on job E
 #
 # $1 = Trimmed reads dir.
-JOBE_IF=$(sbatch --parsable -p short -d afterok:$JOBE_ID run_scripts/make_index.sh $TRIMMED_READS)
+JOBE_IF=$(sbatch --parsable -p short -d afterok:$JOBE_ID run_scripts/make_index.sh $TRIMMED_READS fastq)
 echo "Creating a sample index for the trimmed reads. Job ID: $JOBF_ID."
 
 
