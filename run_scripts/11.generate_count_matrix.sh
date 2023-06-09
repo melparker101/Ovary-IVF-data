@@ -27,12 +27,14 @@ echo "Username: "`whoami`
 echo "Started at: "`date` 
 echo "##########################################################"
 
+# Define variables
+IN=$1  # rsem
 
 # Load modules
 module load RSEM/1.3.2-foss-2018b
 
 # Generate count matrix
-rsem-generate-data-matrix *.genes.results >> full.count.genes.matrix.txt
+rsem-generate-data-matrix "$IN"/*.genes.results >> full.count.genes.matrix.txt
 
 # Trim the version number off the ensembl IDs
 sed 's/\(ENSG[0-9]*\)\.[0-9]*/\1/g' full.count.genes.matrix.txt > count_matrix.txt
