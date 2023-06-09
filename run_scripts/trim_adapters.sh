@@ -28,6 +28,7 @@ echo "Username: "`whoami`
 echo "Started at: "`date` 
 echo "##########################################################"
 
+
 # Define variables
 IN=$1  # raw_reads
 OUT=$2  # trimmed_reads
