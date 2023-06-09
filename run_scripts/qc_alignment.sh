@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #############################################################
 ## Alignment QC
 ## melodyjparker14@gmail.com - Dec 22
@@ -5,6 +7,28 @@
 ## Tutorial followed:
 ## https://rnabio.org/module-02-alignment/0002/06/01/Alignment_QC/
 #############################################################
+
+#SBATCH -A lindgren.prj
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -J alignment_qc
+#SBATCH -o logs/output.out
+#SBATCH -e logs/error.err
+
+#  Parallel environment settings 
+#  For more information on these please see the documentation 
+#  Allowed parameters: 
+#   -c, --cpus-per-task 
+#   -N, --nodes 
+#   -n, --ntasks 
+
+echo "########################################################"
+echo "Slurm Job ID: $SLURM_JOB_ID" 
+echo "Run on host: "`hostname` 
+echo "Operating system: "`uname -s` 
+echo "Username: "`whoami` 
+echo "Started at: "`date` 
+echo "##########################################################"
 
 ###################################
 # WORKFLOW
@@ -28,56 +52,61 @@ conda activate ucsc
 echo "conda ucasc env activated."
 
 module load RSeQC/3.0.0-foss-2018b-Python-3.6.6
-module load samtools/1.8-gcc5.4.0  # for indexing bam files
+# module load samtools/1.8-gcc5.4.0 
 module load BEDOPS/2.4.35-foss-2018b
 module load picard/2.23.0-Java-11
 module load MultiQC/1.7-foss-2018b-Python-3.6.6
 
 echo "modules loaded"
+
+###################################
+# Variables
+###################################
+STAR=$1  # star
+REF_GENOME=$2  # ref_gc
+BAM=bam_files
+ALIGNMENT_QC=run_scripts/alignment_qc
+QC=qc_results
+
 ###################################
 # SETUP
 ###################################
-# Set wd
-# mkdir sortedByCoord
-# cp *sortedByCoord.out.bam sortedByCoord/
-cd sortedByCoord
+# Make a directory for BAM files
+mkdir -p $BAM
 
-# source $HOME/.bashrc
+# Copy across the sorted bam files from the STAR output folder
+cp $STAR/*sortedByCoord.out.bam $BAM/
 
 # Copy gencode reference genome folder across
 # $ref_gc contains the latest gencode reference fa file and annotations gtf file
-cp -R $ref_gc ref
+cp -R $REF_GENOME ref
+
+# Create an index file containing a list of all the BAM files
+JOBA_ID=$(sbatch --parsable -p short run_scripts/make_index.sh $BAM bam) 
+echo "Creating an index file of sample names for BAM files. Job ID: $JOBA_ID."
 
 # Index BAM files
-# Consider using GNU parallel
 # module load parallel
 # parallel  samtools index ::: *.bam
-# The 'parallel' module on the cluster clashes with the GCC version of other modules
-# Use loop
-for f in *.bam; do samtools index "$f" "$f".bai ; done
-echo "BAM file indexing complete."
+# Loop:
+# for f in *.bam; do samtools index "$f" "$f".bai ; done
 
-###################################
-# FUNCTIONS
-###################################
-# Capture the output of a command
-# https://stackoverflow.com/questions/24283097/reusing-output-from-last-command-in-bash
-cap () { tee /tmp/capture.out; }  # Capture
-ret () { cat /tmp/capture.out; }  # Retrieve
-
-
+# Send off script to do this in paralell
+# Dependent on job A
+JOBB_ID=$(sbatch --parsable -p short -d afterok:$JOBA_ID "$ALIGNMENT_QC"/index_bam_files.sh $BAM) 
+echo "Indexing BAM files. Job ID: $JOBB_ID."
 
 ###################################
 # 1 - FASTQC
 ###################################
 # Run FastQC in parallel - send off a script
-qsub fastqc.sh pwd fastqc bam | cap
-
-# Retrieve job ID
-fastqc_job_id=$(ret | awk -v RS='[0-9]+' '$0=RT' | head -1)  
+# Dependent on job A
+JOBC_ID=$(sbatch --parsable -p short -d afterok:$JOBA_ID run_scripts/fastqc.sh $BAM $QC/qc_bam bam)
+echo "Running FastQC on BAM files. Job ID: $JOBC_ID."
 
 # Run Multiqc once FastQC has finished
-qsub multiqc.sh fastqc fastqc_job_id
+JOBD_ID=$(sbatch --parsable -p short -d afterok:$JOBC_ID run_scripts/multiqc.sh $QC/$QC/qc_bam fastqc_bam)
+echo "Running MultiQC to aggregate QC results. Job ID: $JOBD_ID."
 
 ###################################
 # 2 - PICARD
@@ -87,7 +116,7 @@ cd ref
 # Create a dictionary from the reference fasta file
 java -jar $EBROOTPICARD/picard.jar CreateSequenceDictionary R=GRCh38.primary_assembly.genome.fa O=GRCh38.primary_assembly.genome.dict
 
-# Create a bed file of the location of ribosomal sequences in out reference
+# Create a bed file of the location of ribosomal sequences in our reference
 grep --color=none -i -P "rrna" gencode.v42.primary_assembly.annotation.gtf > ref_ribosome.gtf
 gff2bed < ref_ribosome.gtf > ref_ribosome.bed
 
@@ -102,44 +131,40 @@ cat gencode.v42.primary_assembly.ref_flat.txt | awk '{print $12"\t"$0}' | cut -d
 mv tmp.txt gencode.v42.primary_assembly.ref_flat.txt
 
 cd ..
-mkdir picard
+
 # find *sortedByCoord.out.bam -exec echo java -jar $EBROOTPICARD/picard.jar CollectRnaSeqMetrics I={} O=picard/{}.RNA_Metrics REF_FLAT=ref/gencode.v42.primary_assembly.ref_flat.txt STRAND=NONE RIBOSOMAL_INTERVALS=ref/ref_ribosome.interval_list \; | sh
 # This step takes a while---run this in parallel
-JOBIDA=$(qsub -terse picard_collect_rna_seq_metrics.sh)
+# Requires indexed BAMs
+sbatch -p short-d afterok:$JOBB_ID picard_collect_rna_seq_metrics.sh bam_files "$QC"/picard ref
+echo "Running Picard CollectRnaSeqMetrics."
 
 # Mark duplicates
-# for f in *bam; do java -jar $EBROOTPICARD/picard.jar MarkDuplicates INPUT="$f" OUTPUT=dedup/dedup_"$f" M=dedup/"${f%.sorted*}"_metrics.txt; done
-# This is also slow, so also run in parallel
-JOBIDB=$(qsub -terse picard_mark_duplicates.sh)
-
-echo "Picard checks complete."
+# This requires BAM index files, so depends on job B. Collect job ID
+# $1 = input dir, $2 = output dir, $3 part of the report name
+JOBE_ID=$(sbatch --parsable -p short -d afterok:$JOBB_ID "$QC"/picard_mark_duplicates.sh $BAM)
+echo "Running Picard MarkDuplicates. Job ID: $JOBE_ID."
 
 ###################################
 # 2 - SAMTOOLS
 ###################################
 # Perform flagstat on the bam files which have duplicates marked
-mkdir flagstat
-for f in dedup/*.bam; do samtools flagstat "$f" > flagstat/"$f".flagstat; done
+
+# Make output dir
+mkdir "$QC"/flagstat
+
+# Wait for MarkDuplicates to finish running
+squeue --job $job_id
+while squeue --job $JOBE_ID >/dev/null 2>&1; do
+  sleep 1
+done
+
+# Run samtools flagstat
+for f in bam_dedup/*.bam; do samtools flagstat "$f" > "$QC"/flagstat/$(basename "${f%.out*}").flagstat; done
 echo "Flagstats created."
 
-cd dedup
-ls *bam > index.txt
-cd ..
-
-# Make an index file
-(cd dedup && ls *bam) > dedup/index.txt
-
-# Loop through the above index file
-while IFS= read -r file
-do
-	samtools flagstat dedup/"$file" > flagstat/"${file%.out*}".flagstat
-done < "dedup/index.txt"
-
-
-while IFS= read -r file; do	samtools flagstat dedup/"$file" > flagstat/"${file%.out*}".flagstat; done < "dedup/index.txt"
-
-# Alternatively:
-# find *sortedByCoord*.bam -exec echo samtools flagstat {} \> flagstat/{}.flagstat \; | sh
+# Make an index for bam_dedup
+JOBF_ID=$(sbatch --parsable run_scripts/make_index.sh bam_dedup)
+echo "Making an index for deduplicated bam files"
 
 ###################################
 # 4 - RSEQC
@@ -153,37 +178,44 @@ while IFS= read -r file; do	samtools flagstat dedup/"$file" > flagstat/"${file%.
 # module load BEDOPS/2.4.35-foss-2018b
 # module load picard/2.23.0-Java-11
 
-cd ref
+# Create the required reference files
+if [[ -f ref/gencode.v42.primary_assembly.genePred ]]; then
+	# Convert Gtf to genePred
+	gtfToGenePred ref/gencode.v42.primary_assembly.annotation.gtf ref/gencode.v42.primary_assembly.genePred
+fi
 
+if [[ -f ref/gencode.v42.primary_assembly.bed12 ]]; then
+	# Convert genPred to bed12
+	genePredToBed ref/gencode.v42.primary_assembly.genePred ref/gencode.v42.primary_assembly.bed12
+fi
 
-# Convert Gtf to genePred
-# gtfToGenePred gencode.v42.primary_assembly.annotation.gtf gencode.v42.primary_assembly.genePred
-
-# Convert genPred to bed12
-# genePredToBed gencode.v42.primary_assembly.genePred gencode.v42.primary_assembly.bed12
-
-cd ..
-mkdir rseqc
+# Create the output file
+mkdir -p "$QC"/rseqc
 
 # This step takes a while
 # Send a separate script off
 # bam_files=$(ls *bam | paste -sd "," -)
+
 # geneBody_coverage.py -i $bam_files -r ref/gencode.v42.primary_assembly.bed12 -o rseqc
+
+sbatch 
+JOBF_ID=$(sbatch --parsable "$QC"/rseq2_genebody_coverage.sh $BAM "$QC")
+echo "Running geneBody_coverage by rseq2."
 
 echo "Gene converage script sent off"
 
 # Send off script for the rest of the RSeQC analysis
 
 
-
 ###################################
 # 5 - MULTIQC
 ###################################
 # Wait until scripts are finished
-qsub -q short.qc -hold_jid $JOBA_ID,$JOBIDB multiqc.sh $PWD  # check if you can wait on more than one
+JOBH_ID=$(sbatch --parsable -p short -d afterok:$JOBB_ID run_scripts/picard_mark_duplicates.sh $BAM)
+echo "Running MultiQC. Job ID: $JOBH_ID."
 
 
-
-"MultiQC script sent off."
-
-conda deactivate
+echo "###########################################################"
+echo "Finished at: "`date`
+echo "###########################################################"
+exit 0
