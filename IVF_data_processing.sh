@@ -39,16 +39,21 @@ echo "##########################################################"
 ###################################
 # 1 - WORKFLOW
 ###################################
-# - make index file for raw fastq file names
-# - make STAR genome index
-# - make RSEM transcript ref
-# - perform quality control
-# - run trim_reads.sh
-# - create an index for the trimmed reads
-# - use multiqc on fastqc results
-# - run mapping_and_quantification.sh
-# - generate count matrix
-# - run downstream_analysis.sh
+# - Create index file for raw fastq file names
+# - Merge fastq files
+# - Perform quality control (QC) on raw reads
+# - Aggregate QC results for raw reads
+# - Trim adapters
+# - Create an index for the trimmed reads
+# - Perform QC on trimmed reads
+# - Aggregate QC results for trimmed reads
+# - Generate STAR genome index
+# - Align genes to reference genome
+# - Perform alignment QC
+# - Generate RSEM transcript reference
+# - Quantify genes and isoforms
+# - Generate count matrix
+# - Run downstream analysis
 
 ###################################
 # 2 - VARIABLES
