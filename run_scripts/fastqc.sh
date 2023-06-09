@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ----------------------------------------------------------
-# Script to create perform quality control checks on reads using fastqc
+# Script to create perform quality control checks on fastq or bam files using fastqc
 # melodyjparker14@gmail.com - Dec 22
 # ----------------------------------------------------------
 
