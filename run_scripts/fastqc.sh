@@ -43,15 +43,22 @@ mkdir -p $OUT
 
 # Run FastQC
 if [[ $DATA_TYPE == fastq ]]; then
+
   echo "Data type: $DATA_TYPE."
   fastqc $IN/"$INPUT_FILE"_R1_001*.fastq.gz -o $OUT &
   fastqc $IN/"$INPUT_FILE"_R2_001*.fastq.gz -o $OUT &
   wait
+  
 elif [[ $DATA_TYPE == bam ]]; then
+
   echo "Data type: $DATA_TYPE."
   fastqc $IN/"$INPUT_FILE"*.bam -o $OUT
-else echo "File type not recognised."
+  
+else 
+  echo "Data type not recognised. Please use \"fastq\" or \"bam\" as an argument."
+  
 fi
+
 
 echo "###########################################################"
 echo "Finished at: "`date`
