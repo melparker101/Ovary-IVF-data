@@ -41,7 +41,7 @@ module load picard/2.23.0-Java-11
 mkdir -p $OUT
 
 # Mark Duplicates
-java -jar $EBROOTPICARD/picard.jar MarkDuplicates INPUT="$INPUT_FILE"*.bam OUTPUT=dedup/dedup_"$INPUT_FILE"_Aligned.sortedByCoord.out.bam M=dedup/"$INPUT_FILE"_metrics.txt; done 
+java -jar $EBROOTPICARD/picard.jar MarkDuplicates INPUT="$INPUT_FILE"*.bam OUTPUT="$OUT"/dedup_"$INPUT_FILE"_Aligned.sortedByCoord.out.bam M="$OUT"/"$INPUT_FILE"_metrics.txt; done 
 
 
 echo "###########################################################"
