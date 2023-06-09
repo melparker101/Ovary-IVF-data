@@ -99,7 +99,7 @@ echo "Merging fastq files. Job ID: $JOBB_ID."
 #
 # $1 = Raw reads dir.
 # $2 = QC raw reads results dir.
-JOBC_ID=$(sbatch --parsable -p short -d afterok:$JOBA_ID run_scripts/qc_reads.sh $RAW_READS $QC/qc_raw_results)  # Use this line if fastq merging step was skipped
+JOBC_ID=$(sbatch --parsable -p short -d afterok:$JOBA_ID run_scripts/fast_qc.sh $RAW_READS $QC/qc_fastq_raw fastq)  # Use this line if fastq merging step was skipped
 echo "Running FastQC on raw reads. Job ID: $JOBC_ID."
 
 
@@ -108,7 +108,7 @@ echo "Running FastQC on raw reads. Job ID: $JOBC_ID."
 #
 # $1 = Input/output dir
 # $2 = Report name
-JOBD_ID=$(sbatch --parsable -p short -d afterok:$JOBC_ID run_scripts/multiqc.sh $QC/qc_raw_results "fastqc_raw_reads")
+JOBD_ID=$(sbatch --parsable -p short -d afterok:$JOBC_ID run_scripts/multiqc.sh $QC/qc_fastq_raw fastqc_raw_reads)
 echo "Running MultiQC to aggregate QC results. Job ID: $JOBD_ID."
 
 
@@ -134,7 +134,7 @@ echo "Creating a sample index for the trimmed reads. Job ID: $JOBF_ID."
 #
 # $1 = Trimmed reads dir.
 # $2 = QC trimmed reads results dir.
-JOBG_ID=$(sbatch --parsable -p short -d afterok:$JOBF_ID run_scripts/qc_reads.sh $TRIMMED_READS $QC/qc_trimmed_results)  # Use this line if fastq merging step was skipped
+JOBG_ID=$(sbatch --parsable -p short -d afterok:$JOBF_ID run_scripts/fast_qc.sh $TRIMMED_READS $QC/qc_fastq_trimmed fastq)  # Use this line if fastq merging step was skipped
 echo "Running FastQC on trimmed reads. Job ID: $JOBG_ID."
 
 
@@ -143,7 +143,7 @@ echo "Running FastQC on trimmed reads. Job ID: $JOBG_ID."
 #
 # $1 = Input/output dir
 # $2 = Report name
-JOBH_ID=$(sbatch --parsable -p short -d afterok:$JOBG_ID run_scripts/multiqc.sh $QC/qc_trimmed_results "fastqc_trimmed_reads")
+JOBH_ID=$(sbatch --parsable -p short -d afterok:$JOBG_ID run_scripts/multiqc.sh $QC/qc_fastq_trimmed fastqc_trimmed_reads)
 echo "Running MultiQC to aggregate QC results. Job ID: $JOBH_ID."
 
 
