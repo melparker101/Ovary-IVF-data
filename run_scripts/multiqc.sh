@@ -28,11 +28,16 @@ echo "Started at: "`date`
 echo "##########################################################"
 
 
+# Define variables
 IN=$1  # input_dir
 OUT=$1  # output_dir (same as input)
-REPORT_NAME=$2
+MODULES=$2
+REPORT_NAME=multiqc_report_"$MODULES".html 
 
+# Load modules
 module load MultiQC/1.9-foss-2019b-Python-3.7.4
+
+# Run MultiQC
 multiqc -i "$IN" -n "$REPORT_NAME" -o "$OUT"
 
 
