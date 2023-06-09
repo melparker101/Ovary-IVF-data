@@ -1,64 +1,59 @@
 #!/bin/bash
 
 # ----------------------------------------------------------
-# Script to run quality check on in-house IVF ovary data
-# melodyjparker14@gmail.com - Nov 22
+# Script to create perform quality control checks on reads using fastqc
+# melodyjparker14@gmail.com - Dec 22
 # ----------------------------------------------------------
 
-SECONDS=0
+#SBATCH -A lindgren.prj
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -J qc_reads
+#SBATCH -o output.out
+#SBATCH -e error.err
+#SBATCH -a 1-15
 
-# Specify a job name
-#$ -N fastqc
+#  Parallel environment settings 
+#  For more information on these please see the documentation 
+#  Allowed parameters: 
+#   -c, --cpus-per-task 
+#   -N, --nodes 
+#   -n, --ntasks 
 
-# Project name and target queue choose short or long
-#$ -P lindgren.prjc
-#$ -q short.qe
+echo "########################################################"
+echo "Slurm Job ID: $SLURM_JOB_ID" 
+echo "Run on host: "`hostname` 
+echo "Operating system: "`uname -s` 
+echo "Username: "`whoami` 
+echo "Started at: "`date` 
+echo "##########################################################"
 
-# Run the job in the current working directory
-#$ -wd $IN 
 
-# Instead of separate output and error log files, send the error output to the regular output log file
-#$ -j y
-
-# Log locations which are relative to the current
-# working directory of the submission
-#$ -o logs/
-#$ -e logs/
-
-# Parallel environemnt settings
-#  For more information on these please see the wiki
-#  Allowed settings:
-#   shmem
-#   mpi
-#   node_mpi
-#   ramdisk
-#$ -pe shmem 4
-#$ -t 1-15
-
+# Define variables
 IN=$1  # Input dir
 OUT=$2  # Output dir
-FILE_TYPE=$3 # File type, e.g. fastq, bam
+DATA_TYPE=$3  # File type, e.g. fastq, bam
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/index.txt)
 
-
-# Create an index of file names
-for f in *$FILE_TYPE; do echo $f; done > file_index.txt
-
-
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' $IN/file_index.txt)
-
-
+# Load modules
 module load FastQC/0.11.9-Java-11
 
-if [ ! -d "$OUT" ]; then
-  mkdir -p $OUT
+# Create output directory
+mkdir -p $OUT
+
+# Run FastQC
+if [[ $DATA_TYPE == fastq ]]; then
+  echo "Data type: $DATA_TYPE."
+  fastqc $IN/"$INPUT_FILE"_R1_001*.fastq.gz -o $OUT &
+  fastqc $IN/"$INPUT_FILE"_R2_001*.fastq.gz -o $OUT &
+  wait
+elif [[ $DATA_TYPE == bam ]]; then
+  echo "Data type: $DATA_TYPE."
+  fastqc $IN/"$INPUT_FILE"*.bam -o $OUT
+else echo "File type not recognised."
 fi
 
-echo $INPUT_FILE
-fastqc $IN/"$INPUT_FILE" -o $OUT &
-fastqc $IN/"$INPUT_FILE -o $OUT &
-wait  # FastQC is run in the background for both files
-
-echo "FastQC finished."
-
-
-# End of job script
+echo "###########################################################"
+echo "Finished at: "`date`
+echo "###########################################################"
+exit 0
