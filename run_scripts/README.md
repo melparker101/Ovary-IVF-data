@@ -1,4 +1,4 @@
-### These scripts are being altered to run with slurm, but have not yet been tested.
+These scripts are being altered to run with slurm, but have not yet been tested.
 
 ## Pipeline overview
 1. Create index file for raw fastq file names: [make_index.sh](https://github.com/melparker101/Ovary-IVF-data/blob/main/run_scripts/make_index.sh)
