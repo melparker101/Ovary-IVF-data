@@ -28,15 +28,19 @@ echo "Username: "`whoami`
 echo "Started at: "`date` 
 echo "##########################################################"
 
-
+# Define variables
 IN=$1  # raw_reads
 OUT=$2  # trimmed_reads
+ADAPTER=NexteraPE-PE.fa
 INPUT_FILE=$(sed "${SLURM_ARRAY_TASK_ID}"'q;d' "$IN"/index.txt)
 
+# Load modules
 module load Trimmomatic/0.39-Java-11
 
+# Create output directory
 mkdir -p $OUT
 
+# Trim adapters
 java -jar $EBROOTTRIMMOMATIC/trimmomatic-0.39.jar \
 PE \
 $IN/"$INPUT_FILE"_R1_001.fastq.gz \
@@ -45,7 +49,7 @@ $OUT/"$INPUT_FILE"_R1_001_trimmed_P.fastq.gz \
 $OUT/"$INPUT_FILE"_R1_001_trimmed_U.fastq.gz \
 $OUT/"$INPUT_FILE"_R2_001_trimmed_P.fastq.gz \
 $OUT/"$INPUT_FILE"_R2_001_trimmed_U.fastq.gz \
-ILLUMINACLIP:$EBROOTTRIMMOMATIC/adapters/NexteraPE-PE.fa:2:30:10 \
+ILLUMINACLIP:$EBROOTTRIMMOMATIC/adapters/"$ADAPTER":2:30:10 \
 MINLEN:20
 
 
