@@ -28,7 +28,10 @@ echo "Started at: "`date`
 echo "##########################################################"
 
 
+# Load modules
 module load RSEM/1.3.2-foss-2018b
+
+# Generate count matrix
 rsem-generate-data-matrix *.genes.results >> full.count.genes.matrix.txt
 
 # Trim the version number off the ensembl IDs
