@@ -1,67 +1,50 @@
 #!/bin/bash
 
 # ----------------------------------------------------------
-# A script to run Picard's MarkDuplicates on BAM files in parallel.
+# An array script to run Picard's function MarkDuplicates
 # melodyjparker14@gmail.com - Dec 22
 # ----------------------------------------------------------
 
-# Specify a job name
-#$ -N MarkDuplicates
+#SBATCH -A lindgren.prj
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -J MarkDuplicates
+#SBATCH -o logs/
+#SBATCH -e logs/
+#SBATCH -a 1-15
 
-# Project name and target queue choose short or long
-#$ -P lindgren.prjc
-#$ -q short.qe 
+#  Parallel environment settings 
+#  For more information on these please see the documentation 
+#  Allowed parameters: 
+#   -c, --cpus-per-task 
+#   -N, --nodes 
+#   -n, --ntasks 
 
-# Run the job in the current working directory
-#$ -cwd -j y
-
-# Log locations which are relative to the current
-# working directory of the submission
-###$ -o logs/output.log
-###$ -e logs/error.log
-
-# Parallel environemnt settings
-#  For more information on these please see the wiki
-#  Allowed settings:
-#   shmem
-#   mpi
-#   node_mpi
-#   ramdisk
-#$ -pe shmem 4
-#$ -t 1-15
-
-# Some useful data about the job to help with debugging
-echo "------------------------------------------------"
-echo "SGE Job ID: $JOB_ID"
-echo "SGE Task ID: $SGE_TASK_ID"
-echo "Run on host: "`hostname`
-echo "Operating system: "`uname -s`
-echo "Username: "`whoami`
-echo "Started at: "`date`
-echo "------------------------------------------------"
+echo "########################################################"
+echo "Slurm Job ID: $SLURM_JOB_ID" 
+echo "Run on host: "`hostname` 
+echo "Operating system: "`uname -s` 
+echo "Username: "`whoami` 
+echo "Started at: "`date` 
+echo "##########################################################"
 
 
-if [ ! -f file_index.txt ]; then
-  for f in *.bam; do echo $f >> file_index.txt; done
-fi
+# Define variables
+IN=$1
+OUT=bam_dedup
+INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' index.txt)
 
-
-INPUT_FILE=$(sed "$SGE_TASK_ID"'q;d' file_index.txt)
-OUT=dedup
-
-
-if [ ! -d "$OUT" ]; then
-  mkdir -p $OUT
-fi
-
-
+# Load modules
 module load picard/2.23.0-Java-11
 
+# Make output directory
+mkdir -p $OUT
 
-java -jar $EBROOTPICARD/picard.jar MarkDuplicates INPUT=$INPUT_FILE OUTPUT=dedup/dedup_$INPUT_FILE M=dedup/"${INPUT_FILE%Aligned*}"_metrics.txt; done 
+# Mark Duplicates
+java -jar $EBROOTPICARD/picard.jar MarkDuplicates INPUT="$INPUT_FILE"*.bam OUTPUT=dedup/dedup_"$INPUT_FILE"_Aligned.sortedByCoord.out.bam M=dedup/"$INPUT_FILE"_metrics.txt; done 
 
 
-echo "CollectRnaSeqMetrics complete."
-
-
-# End of job script
+echo "###########################################################"
+echo "Finished at: "`date`
+echo "###########################################################"
+exit 0
